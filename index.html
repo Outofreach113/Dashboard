@@ -1,0 +1,1715 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Daily Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#e9f1f8; --surface:#ffffff; --surface2:#e2eaf4; --text:#060b16; --dim:#51637c;
+  --border:#cfdcee; --accent:#1d4ed8; --accent-strong:#2563eb; --accent-soft:#dbeafe;
+  --glow:rgba(37,99,235,.13); --aurora-teal:rgba(20,184,166,.14); --aurora-cyan:rgba(34,211,238,.13); --aurora-violet:rgba(139,92,246,.11);
+  --grid-line:rgba(37,99,235,.05); --alert:#b42318; --gain:#15803d; --loss:#b42318; --warn:#b45309;
+  --radius:14px; --font:"Outfit",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#020610; --surface:#0a101d; --surface2:#101a2d; --text:#e8f0fc; --dim:#8fa3bc;
+    --border:#1c2a44; --accent:#60a5fa; --accent-strong:#2563eb; --accent-soft:#12294d;
+    --glow:rgba(56,189,248,.14); --aurora-teal:rgba(45,212,191,.16); --aurora-cyan:rgba(56,189,248,.15); --aurora-violet:rgba(167,139,250,.14);
+    --grid-line:rgba(96,165,250,.05); --alert:#f87171; --gain:#4ade80; --loss:#f87171; --warn:#fbbf24;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16px;line-height:1.45}
+button{font-family:inherit;cursor:pointer;color:inherit}
+@media(max-width:700px){#syncStatus{font-size:0}#syncStatus .statusdot{width:10px;height:10px}}
+input,select,textarea{font-family:inherit}
+a{color:var(--accent)}
+h1,h2,h3{letter-spacing:-.01em;margin:0}
+.app-shell{min-height:100vh;padding-bottom:44px;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(980px 520px at 16% -10%, var(--aurora-teal), transparent 64%),
+    radial-gradient(900px 500px at 84% -6%, var(--aurora-violet), transparent 62%),
+    radial-gradient(760px 460px at 52% -14%, var(--aurora-cyan), transparent 60%),
+    radial-gradient(880px 460px at 88% -8%, var(--glow), transparent 62%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 260' preserveAspectRatio='none'%3E%3Cpath d='M0,168 L110,96 L230,148 L350,72 L470,136 L590,58 L710,124 L830,84 L950,146 L1070,78 L1190,130 L1310,88 L1440,136 L1440,260 L0,260 Z' fill='%232563eb' fill-opacity='0.11'/%3E%3Cpath d='M100,168 l11,-30 l11,30 z M345,142 l10,-26 l10,26 z M585,128 l11,-30 l11,30 z M825,152 l10,-26 l10,26 z M1065,146 l11,-28 l11,28 z M1305,156 l10,-25 l10,25 z' fill='%230f766e' fill-opacity='0.13'/%3E%3Cpath d='M0,198 L150,138 L310,182 L470,128 L630,178 L790,132 L950,186 L1110,142 L1270,182 L1440,152 L1440,260 L0,260 Z' fill='%230e7490' fill-opacity='0.10'/%3E%3Cpath d='M0,224 L200,178 L420,214 L640,172 L860,216 L1080,180 L1260,212 L1440,188 L1440,260 L0,260 Z' fill='%231e40af' fill-opacity='0.08'/%3E%3C/svg%3E"),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:auto,auto,auto,auto,1680px 260px,44px 44px,44px 44px;
+  background-position:center,center,center,center,bottom center,top left,top left;
+  background-repeat:no-repeat,no-repeat,no-repeat,no-repeat,repeat-x,repeat,repeat;
+  background-attachment:fixed,fixed,fixed,fixed,fixed,scroll,scroll;
+}
+.ticker-dark{background:#04070d;color:#dce9ff;border-color:rgba(96,165,250,.28)}
+.tickerbar{overflow:hidden;border-bottom:1px solid rgba(96,165,250,.28);padding:6px 0}
+.tickerbar.bottom{position:fixed;left:0;right:0;bottom:0;z-index:40;border-top:1px solid rgba(96,165,250,.28);border-bottom:none}
+.ticker-track{display:inline-flex;white-space:nowrap;animation:tick 52s linear infinite;will-change:transform}
+.ticker-track.fast{animation-duration:40s}
+@keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.ticker-track{animation:none}}
+.tick-item{margin:0 16px;display:inline-flex;align-items:baseline;gap:8px;font-size:14px}
+.tick-item .sym{font-weight:700;letter-spacing:.04em;color:#7dd3fc}
+.up{color:#4ade80}.down{color:#f87171}.flat{color:#8fa3bc}
+.glassbar{background:color-mix(in srgb, var(--surface) 84%, transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px}
+.layout{display:flex;gap:0;width:100%}
+@media(min-width:900px){.layout{gap:24px;padding:0 24px}}
+@media(min-width:1200px){.layout{gap:32px;padding:0 40px}}
+aside.side{position:sticky;top:0;height:100vh;width:224px;flex-shrink:0;flex-direction:column;gap:4px;overflow-y:auto;padding:16px 8px 16px 0;display:none}
+@media(min-width:900px){aside.side{display:flex}}
+@media(min-width:1200px){aside.side{width:256px}}
+.navbtn{display:flex;align-items:center;gap:12px;border:none;background:transparent;color:var(--dim);border-radius:12px;padding:8px;font-size:14px;font-weight:600;text-align:left;width:100%}
+.navbtn .tile{width:40px;height:40px;border-radius:10px;background:#050b16;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.navbtn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(2,6,16,.18);outline:1px solid var(--border)}
+.navbtn .badge{margin-left:auto;background:var(--alert);color:#fff;border-radius:999px;padding:0 6px;font-size:11px;font-weight:700}
+main{flex:1;min-width:0;width:100%;padding:16px}
+@media(min-width:900px){main{padding:16px 0 24px}}
+.mobilenav{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-bottom:16px}
+@media(min-width:900px){.mobilenav{display:none}}
+.mobilenav .navbtn{flex-direction:column;gap:4px;padding:6px 2px;font-size:10px;align-items:center;text-align:center}
+.mobilenav .tile{width:36px;height:36px}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:0 1px 3px rgba(2,6,16,.10);outline:1px solid var(--border);padding:16px}
+.card.flat{padding:12px}
+.chip{display:inline-block;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700;letter-spacing:.02em;background:var(--surface2);color:var(--dim);white-space:nowrap}
+.chip.accent{background:var(--accent-strong);color:#fff}
+.chip.alert{background:var(--alert);color:#fff}
+.chip.warn{background:var(--warn);color:#fff}
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600}
+.btn.primary{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff}
+.btn.danger{background:var(--alert);border-color:var(--alert);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.small{padding:5px 12px;font-size:13px}
+.grid{display:grid;gap:12px}
+.muted{color:var(--dim)} .small{font-size:13px} .tiny{font-size:11px}
+.big-num{font-size:44px;font-weight:700;line-height:1}
+.section-title{font-size:21px;font-weight:700;margin-bottom:8px}
+.rowitem{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left}
+input[type="checkbox"].taskbox{width:22px;height:22px;accent-color:var(--accent-strong);flex-shrink:0;margin-top:1px;cursor:pointer}
+.done-text{text-decoration:line-through;color:var(--dim)}
+input.field,select.field,textarea.field{width:100%;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:10px;padding:10px 12px;font-size:14px;outline:none}
+input.field:focus,select.field:focus,textarea.field:focus{border-color:var(--accent)}
+label.flabel{display:block;font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--dim);margin:12px 0 4px;text-transform:uppercase}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{border:1px solid var(--border);background:var(--surface);color:var(--dim);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:600}
+.tab.active{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff}
+.daystrip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.daybtn{flex-shrink:0;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;padding:6px 12px;text-align:center}
+.daybtn.active{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff}
+.daybtn .dow{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.daybtn .dnum{display:block;font-size:18px;font-weight:700;line-height:1.1}
+.modal-back{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:640px){.modal-back{align-items:center;padding:16px}}
+.modal{width:100%;max-width:520px;max-height:88vh;overflow-y:auto;background:var(--surface);border-radius:18px 18px 0 0;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.4)}
+@media(min-width:640px){.modal{border-radius:18px}}
+.progress{height:8px;border-radius:999px;background:var(--surface2);overflow:hidden}
+.progress>div{height:100%;background:var(--accent-strong);border-radius:999px}
+.talk-fab{position:fixed;bottom:52px;right:16px;z-index:50;display:flex;align-items:center;gap:8px;border:none;border-radius:999px;background:var(--accent-strong);color:#fff;padding:13px 18px;font-size:15px;font-weight:700;box-shadow:0 10px 24px rgba(2,6,23,.45);outline:2px solid rgba(125,211,252,.5)}
+@media(min-width:900px){.talk-fab{right:24px;bottom:56px}}
+.voice-orb{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;background:radial-gradient(circle at 32% 30%, #38bdf8, #2563eb 58%, #1e3a8a)}
+.voice-orb.live{animation:breathe 2.6s ease-in-out infinite}
+.voice-orb.speaking{animation:pulse .9s ease-in-out infinite}
+.voice-orb.connecting{animation:breathe 1.2s ease-in-out infinite;opacity:.75}
+@keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(56,189,248,.30)}50%{box-shadow:0 0 0 14px rgba(56,189,248,0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(96,165,250,.45);transform:scale(1)}50%{box-shadow:0 0 0 18px rgba(96,165,250,0);transform:scale(1.05)}}
+@media (prefers-reduced-motion: reduce){.voice-orb.live,.voice-orb.speaking,.voice-orb.connecting{animation:none}}
+.live-strip{display:flex;align-items:center;gap:12px;margin-top:12px;background:var(--accent-soft);border-radius:12px;padding:10px 12px}
+.voice-bars{display:inline-flex;align-items:flex-end;gap:3px;height:20px;flex-shrink:0}
+.voice-bars i{width:4px;border-radius:2px;background:var(--accent-strong);animation:vbars 1s ease-in-out infinite}
+.voice-bars i:nth-child(1){height:55%;animation-delay:0s}
+.voice-bars i:nth-child(2){height:90%;animation-delay:.15s}
+.voice-bars i:nth-child(3){height:65%;animation-delay:.3s}
+.voice-bars i:nth-child(4){height:100%;animation-delay:.45s}
+.voice-bars i:nth-child(5){height:50%;animation-delay:.6s}
+.voice-bars.paused i{animation-play-state:paused;opacity:.35}
+@keyframes vbars{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
+@media (prefers-reduced-motion: reduce){.voice-bars i{animation:none}}
+.transcript{max-height:176px;overflow-y:auto;background:var(--surface2);border-radius:12px;padding:12px}
+.spark{display:block}
+.stockcard{text-align:left;border:none;width:100%}
+.divider{border-top:1px solid var(--border)}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
+.kv:last-child{border-bottom:none}
+.statusdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#94a3b8;vertical-align:middle}
+.statusdot.ok{background:#22c55e}.statusdot.err{background:#ef4444}.statusdot.busy{background:#f59e0b}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:80;background:#04070d;color:#dce9ff;border:1px solid rgba(96,165,250,.4);border-radius:999px;padding:8px 16px;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:92vw;text-align:center}
+.plan-grid{display:grid;gap:12px}
+@media(min-width:1100px){.plan-grid{grid-template-columns:repeat(7,1fr)}}
+@media(min-width:700px) and (max-width:1099px){.plan-grid{grid-template-columns:repeat(2,1fr)}}
+.news-grid{display:grid;gap:0}
+@media(min-width:1000px){.news-grid{grid-template-columns:1fr 1fr}.news-grid>a{border-bottom:1px solid var(--border)}}
+@media(min-width:1500px){.news-grid{grid-template-columns:1fr 1fr 1fr}}
+/* ===== Jarvis HUD ===== */
+.talk-fab{background:linear-gradient(135deg,#0ea5e9,#2563eb 55%,#1e40af);box-shadow:0 0 0 1px rgba(125,211,252,.55),0 10px 28px rgba(37,99,235,.55),0 0 22px rgba(56,189,248,.45)}
+.wake-fab{position:fixed;bottom:118px;right:16px;z-index:50;display:flex;align-items:center;gap:6px;border:1px solid rgba(125,211,252,.45);border-radius:999px;background:rgba(4,10,22,.88);color:#bae6fd;padding:7px 11px;font-size:12px;font-weight:700;box-shadow:0 8px 20px rgba(2,6,23,.4);backdrop-filter:blur(10px);white-space:nowrap}
+@media(min-width:900px){.wake-fab{right:24px;bottom:122px}}
+.wake-fab .wdot{width:8px;height:8px;border-radius:50%;background:#64748b;flex-shrink:0}
+.wake-fab.on .wdot{background:#22d3ee;box-shadow:0 0 10px #22d3ee;animation:breathe 1.6s ease-in-out infinite}
+.jarvis-overlay{position:fixed;inset:0;z-index:95;background:radial-gradient(900px 600px at 50% 38%,rgba(14,116,233,.22),transparent 62%),radial-gradient(700px 500px at 18% 90%,rgba(34,211,238,.10),transparent 60%),radial-gradient(700px 500px at 84% 8%,rgba(99,102,241,.10),transparent 60%),rgba(2,8,20,.52);color:#e0f2fe;overflow-y:auto;overflow-x:hidden;backdrop-filter:blur(3px) saturate(1.15);-webkit-backdrop-filter:blur(3px) saturate(1.15)}
+.jarvis-overlay::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+#jarvisParticles{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.jarvis-inner{position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 16px 28px;max-width:860px;margin:0 auto;width:100%}
+.jarvis-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;width:100%}
+.jarvis-name{font-size:28px;font-weight:800;letter-spacing:.22em;line-height:1;color:#f0f9ff;text-shadow:0 0 18px rgba(56,189,248,.65)}
+.jarvis-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#7dd3fc;margin:6px 0 0;font-weight:700}
+.jarvis-close{border:1px solid rgba(125,211,252,.4);background:rgba(8,20,38,.8);color:#e0f2fe;border-radius:999px;width:40px;height:40px;font-size:17px;flex-shrink:0}
+.jarvis-hud{position:relative;width:min(78vw,360px);aspect-ratio:1;margin:18px auto 6px;--lvl:0}
+.jarvis-ring{position:absolute;border-radius:50%;pointer-events:none}
+.jr-outer{inset:0;border:1px solid rgba(56,189,248,.28);background:repeating-conic-gradient(from 0deg,rgba(125,211,252,.55) 0deg 2deg,transparent 2deg 12deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));mask:radial-gradient(farthest-side,transparent calc(100% - 10px),#000 calc(100% - 9px));animation:jspin 26s linear infinite}
+.jr-arc1{inset:10px;border:3px solid transparent;border-top-color:#38bdf8;border-right-color:rgba(56,189,248,.75);box-shadow:0 0 18px rgba(56,189,248,.25),inset 0 0 18px rgba(56,189,248,.12);animation:jspin 7s linear infinite}
+.jr-arc2{inset:28px;border:2px solid transparent;border-bottom-color:#22d3ee;border-left-color:#60a5fa;animation:jspinr 11s linear infinite}
+.jr-dash{inset:44px;border:1px dashed rgba(125,211,252,.55);animation:jspin 20s linear infinite}
+.jr-arc3{inset:58px;border:4px solid transparent;border-top-color:rgba(34,211,238,.9);border-bottom-color:rgba(37,99,235,.7);animation:jspinr 5.5s linear infinite}
+.jr-glow{inset:74px;background:radial-gradient(circle,rgba(56,189,248,.32),rgba(37,99,235,.14) 55%,transparent 72%);filter:blur(2px)}
+.jarvis-core{position:absolute;inset:31%;border-radius:50%;background:radial-gradient(circle at 34% 30%,#e0f2fe,#38bdf8 34%,#2563eb 68%,#172554);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 0 34px rgba(56,189,248,.75),0 0 90px rgba(37,99,235,.45),inset 0 0 24px rgba(224,242,254,.35);transition:transform .12s ease}
+.jarvis-core.speaking{box-shadow:0 0 44px rgba(56,189,248,.95),0 0 120px rgba(34,211,238,.55),inset 0 0 28px rgba(224,242,254,.45)}
+@keyframes jspin{to{transform:rotate(360deg)}}
+@keyframes jspinr{to{transform:rotate(-360deg)}}
+@media (prefers-reduced-motion: reduce){.jr-outer,.jr-arc1,.jr-arc2,.jr-dash,.jr-arc3{animation:none}}
+.jarvis-wave{display:flex;align-items:center;justify-content:center;gap:3px;height:52px;margin:8px 0 2px;width:min(92vw,520px)}
+.jarvis-wave i{flex:1;max-width:9px;min-width:3px;height:8px;border-radius:99px;background:linear-gradient(180deg,#7dd3fc,#2563eb);box-shadow:0 0 8px rgba(56,189,248,.55);transition:height .09s ease}
+.jarvis-status{font-size:16px;font-weight:700;text-align:center;margin:8px 0 0;color:#f0f9ff}
+.jarvis-note{font-size:12px;color:#93c5fd;text-align:center;margin:6px auto 0;max-width:520px;line-height:1.5}
+.jarvis-panel{width:100%;max-width:680px;margin-top:16px;background:rgba(6,18,36,.58);border:1px solid rgba(96,165,250,.32);border-radius:16px;padding:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.search-results{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.search-result{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
+.search-result .sr-main{flex:1;min-width:0}
+.search-result .sr-sym{font-weight:800;letter-spacing:.03em}
+.search-result .sr-name{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jarvis-panel .transcript{background:rgba(2,10,24,.65);border:1px solid rgba(96,165,250,.18);color:#dbeafe;max-height:210px}
+.jarvis-btn{border:1px solid rgba(125,211,252,.45);background:rgba(10,28,52,.85);color:#e0f2fe;border-radius:999px;padding:10px 16px;font-size:14px;font-weight:700}
+.jarvis-btn.primary{background:#0284c7;border-color:#38bdf8;color:#fff;box-shadow:0 0 18px rgba(56,189,248,.4)}
+.jarvis-btn.danger{background:rgba(127,29,29,.85);border-color:rgba(248,113,113,.5);color:#fff}
+.jarvis-btn:disabled{opacity:.5}
+.jarvis-field{width:100%;border:1px solid rgba(125,211,252,.35);background:rgba(2,10,24,.8);color:#f0f9ff;border-radius:10px;padding:11px 12px;font-size:14px;outline:none}
+.jarvis-field::placeholder{color:#7a93b5}
+body.jarvis-open{overflow:hidden}
+.load-note{font-size:13px;color:var(--dim);margin:0}
+</style>
+</head>
+<body>
+<div class="app-shell" id="shell">
+  <div class="ticker-dark tickerbar" aria-label="Stock prices ticker"><div class="ticker-track" id="stockTicker"><span class="tick-item"><span class="flat">Loading market data…</span></span></div></div>
+  <div class="glassbar">
+    <div class="topbar-inner">
+      <p class="small muted" id="dateLine" style="margin:0"></p>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="small muted" id="syncStatus" role="status"></span>
+        <button type="button" class="btn small" id="settingsBtn" aria-label="Open settings">⚙ Settings</button>
+      </div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="side" aria-label="Sections" id="sideNav"></aside>
+    <main id="main">
+      <nav class="mobilenav" aria-label="Sections" id="mobileNav"></nav>
+      <div id="pinnedRow" style="margin-bottom:12px"></div>
+      <div id="viewRoot"></div>
+    </main>
+  </div>
+  <div class="ticker-dark tickerbar bottom" id="examTickerWrap" style="display:none" aria-label="Upcoming exams ticker"><div class="ticker-track fast" id="examTicker"></div></div>
+</div>
+<button type="button" class="wake-fab" id="wakeFab" aria-label="Toggle wake word listening for Jarvis — when on, saying Hey Jarvis starts Jarvis" aria-pressed="false" title="Wake word — when on, say “Hey Jarvis” to start Jarvis"><span class="wdot" aria-hidden="true"></span><span id="wakeFabLabel">Wake: Off</span></button>
+<button type="button" class="talk-fab" id="talkFab" aria-label="Talk to Jarvis — open Jarvis">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  <span id="talkFabLabel">Jarvis</span> <span id="talkLiveDot" class="statusdot ok" style="display:none"></span>
+</button>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+"use strict";
+/* =============== helpers =============== */
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function localDateStr(d){var y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return y+"-"+m+"-"+day}
+function todayStr(){return localDateStr(new Date())}
+function addDaysStr(base,n){var d=new Date(base+"T12:00:00");d.setDate(d.getDate()+n);return localDateStr(d)}
+function fmtDay(ds){return new Date(ds+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}
+function fmtDayLong(ds){return new Date(ds+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"})}
+function daysUntil(ds){var a=new Date(todayStr()+"T12:00:00").getTime(),b=new Date(ds+"T12:00:00").getTime();return Math.round((b-a)/86400000)}
+function money(v,d){if(v==null||isNaN(v))return"—";if(d==null)d=2;return "$"+Number(v).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function pct(v){if(v==null||isNaN(v))return"—";return (v>=0?"+":"")+Number(v).toFixed(2)+"%"}
+function uid(p){return p+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function toast(msg){var t=document.createElement("div");t.className="toast";t.textContent=msg;$("toastRoot").appendChild(t);setTimeout(function(){t.remove()},3400)}
+function parseTimeLabel(label){var m=String(label||"").trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);if(!m)return null;var h=Number(m[1])%12;if((m[3]||"").toUpperCase()==="PM")h+=12;return h*60+Number(m[2])}
+function shiftDuration(s,e){var a=parseTimeLabel(s),b=parseTimeLabel(e);if(a==null||b==null)return null;var mins=b-a;if(mins<=0)mins+=1440;var h=Math.floor(mins/60),r=mins%60;if(h===0)return r+" min";return r===0?h+" hrs":h+" hrs "+r+" min"}
+function fetchWithTimeout(url,ms,opts){
+  ms=ms||6000;
+  if(window.AbortController){
+    var c=new AbortController();var t=setTimeout(function(){try{c.abort()}catch(e){}},ms);
+    var o={};if(opts)for(var k in opts)o[k]=opts[k];o.signal=c.signal;
+    return fetch(url,o).then(function(r){clearTimeout(t);return r},function(e){clearTimeout(t);throw e});
+  }
+  return Promise.race([fetch(url,opts),new Promise(function(_,rej){setTimeout(function(){rej(new Error("Request timed out"))},ms)})]);
+}
+function withTimeout(promise,ms,label){
+  return Promise.race([promise,new Promise(function(_,rej){setTimeout(function(){rej(new Error((label||"Request")+" timed out"))},ms)})]);
+}
+function timeAgo(iso){if(!iso)return"";var mins=Math.max(0,Math.round((Date.now()-new Date(iso).getTime())/60000));if(mins<1)return"just now";if(mins<60)return mins+"m ago";var h=Math.floor(mins/60);return h<24?h+"h ago":Math.floor(h/24)+"d ago"}
+</script>
+
+<script>
+"use strict";
+/* =============== seed data: Fall 2026 syllabi (CBU) — same set as the Muse planner =============== */
+var WATCHLIST=["SPCX","NVDA","SPYX","SPY","QQQM","NFLX","TXN","VUG"];
+var WATCH_NAMES={SPCX:"SpaceX (Space Exploration Technologies)",NVDA:"NVIDIA",SPYX:"SPDR S&P 500 Fossil Fuel Reserves Free ETF",SPY:"SPDR S&P 500 ETF",QQQM:"Invesco NASDAQ 100 ETF",NFLX:"Netflix",TXN:"Texas Instruments",VUG:"Vanguard Growth ETF"};
+/* Company-name directory for stock search: [ticker, name, extra aliases].
+   Lets search find a stock by company name (Apple -> AAPL, Nvidia -> NVDA,
+   SpaceX -> SPCX) without any extra network call, so it is instant and
+   works offline. Ticker search still goes straight to the CNBC quote feed
+   for anything not listed here. Order matters: earlier = preferred when
+   two names score the same (e.g. Apple Inc. before Apple Hospitality). */
+var COMPANY_DIRECTORY=[
+["AAPL","Apple Inc.",["apple","apple inc"]],["NVDA","NVIDIA Corporation",["nvidia"]],["SPCX","SpaceX (Space Exploration Technologies)",["spacex","space x","space exploration technologies"]],
+["MSFT","Microsoft Corporation",["microsoft"]],["AMZN","Amazon.com Inc.",["amazon"]],["GOOGL","Alphabet Inc. (Google)",["google","alphabet"]],["GOOG","Alphabet Inc. Class C (Google)",["google class c","alphabet class c"]],
+["META","Meta Platforms Inc.",["meta","facebook","instagram"]],["TSLA","Tesla Inc.",["tesla"]],["AVGO","Broadcom Inc.",["broadcom"]],["LLY","Eli Lilly and Company",["eli lilly","lilly"]],
+["JPM","JPMorgan Chase & Co.",["jpmorgan","jp morgan","jpmorgan chase"]],["V","Visa Inc.",["visa"]],["MA","Mastercard Inc.",["mastercard"]],["UNH","UnitedHealth Group",["unitedhealth","united health"]],
+["XOM","Exxon Mobil Corporation",["exxon","exxon mobil"]],["COST","Costco Wholesale Corporation",["costco"]],["WMT","Walmart Inc.",["walmart","wal-mart"]],["PG","Procter & Gamble",["procter gamble","p and g"]],
+["JNJ","Johnson & Johnson",["johnson and johnson","j and j"]],["HD","Home Depot Inc.",["home depot"]],["NFLX","Netflix Inc.",["netflix"]],["CRM","Salesforce Inc.",["salesforce"]],
+["ORCL","Oracle Corporation",["oracle"]],["BAC","Bank of America",["bank of america","bofa"]],["CVX","Chevron Corporation",["chevron"]],["KO","Coca-Cola Company",["coca cola","coca-cola","coke"]],
+["PEP","PepsiCo Inc.",["pepsi","pepsico"]],["TMO","Thermo Fisher Scientific",["thermo fisher"]],["WFC","Wells Fargo & Company",["wells fargo"]],["CSCO","Cisco Systems Inc.",["cisco"]],
+["ACN","Accenture plc",["accenture"]],["MCD","McDonald's Corporation",["mcdonalds","mcdonald's","mcdonald"]],["ABT","Abbott Laboratories",["abbott"]],["DHR","Danaher Corporation",["danaher"]],
+["TXN","Texas Instruments",["texas instruments"]],["QCOM","Qualcomm Inc.",["qualcomm"]],["AMGN","Amgen Inc.",["amgen"]],["HON","Honeywell International",["honeywell"]],
+["IBM","International Business Machines",["ibm"]],["GE","GE Aerospace (General Electric)",["general electric","ge aerospace"]],["CAT","Caterpillar Inc.",["caterpillar"]],
+["GS","Goldman Sachs Group",["goldman sachs","goldman"]],["MS","Morgan Stanley",["morgan stanley"]],["AXP","American Express",["american express","amex"]],
+["BKNG","Booking Holdings",["booking","booking.com","priceline"]],["SBUX","Starbucks Corporation",["starbucks"]],["NKE","Nike Inc.",["nike"]],["PFE","Pfizer Inc.",["pfizer"]],
+["CMCSA","Comcast Corporation",["comcast"]],["ADBE","Adobe Inc.",["adobe"]],["AMD","Advanced Micro Devices",["advanced micro devices","amd"]],["INTC","Intel Corporation",["intel"]],
+["INTU","Intuit Inc.",["intuit","turbotax"]],["AMAT","Applied Materials",["applied materials"]],["MU","Micron Technology",["micron"]],["LRCX","Lam Research",["lam research"]],
+["ADI","Analog Devices",["analog devices"]],["KLAC","KLA Corporation",["kla"]],["SNPS","Synopsys Inc.",["synopsys"]],["CDNS","Cadence Design Systems",["cadence"]],
+["REGN","Regeneron Pharmaceuticals",["regeneron"]],["VRTX","Vertex Pharmaceuticals",["vertex"]],["MRVL","Marvell Technology",["marvell"]],["PANW","Palo Alto Networks",["palo alto networks","palo alto"]],
+["CRWD","CrowdStrike Holdings",["crowdstrike"]],["PLTR","Palantir Technologies",["palantir"]],["UBER","Uber Technologies",["uber"]],["ABNB","Airbnb Inc.",["airbnb"]],
+["SHOP","Shopify Inc.",["shopify"]],["XYZ","Block Inc.",["block","square"]],["PYPL","PayPal Holdings",["paypal"]],["COIN","Coinbase Global",["coinbase"]],
+["HOOD","Robinhood Markets",["robinhood"]],["RBLX","Roblox Corporation",["roblox"]],["NET","Cloudflare Inc.",["cloudflare"]],["DDOG","Datadog Inc.",["datadog"]],
+["NOW","ServiceNow Inc.",["servicenow"]],["DELL","Dell Technologies",["dell"]],["ARM","Arm Holdings",["arm holdings","arm"]],["ASML","ASML Holding",["asml"]],
+["TSM","Taiwan Semiconductor (TSMC)",["tsmc","taiwan semiconductor"]],["BABA","Alibaba Group",["alibaba"]],["SMCI","Super Micro Computer",["super micro","supermicro"]],
+["APP","AppLovin Corporation",["applovin"]],["MSTR","Strategy (MicroStrategy)",["microstrategy","strategy"]],["SOFI","SoFi Technologies",["sofi"]],["AFRM","Affirm Holdings",["affirm"]],
+["DIS","Walt Disney Company",["disney","walt disney"]],["T","AT&T Inc.",["at&t","att"]],["VZ","Verizon Communications",["verizon"]],["TMUS","T-Mobile US",["t-mobile","tmobile","t mobile"]],
+["F","Ford Motor Company",["ford"]],["GM","General Motors",["general motors","gm"]],["RIVN","Rivian Automotive",["rivian"]],["LCID","Lucid Group",["lucid","lucid motors"]],
+["NIO","NIO Inc.",["nio"]],["BA","Boeing Company",["boeing"]],["LMT","Lockheed Martin",["lockheed martin","lockheed"]],["RTX","RTX Corporation (Raytheon)",["raytheon","rtx"]],
+["DAL","Delta Air Lines",["delta","delta air lines"]],["UAL","United Airlines Holdings",["united airlines","united"]],["AAL","American Airlines Group",["american airlines"]],
+["FDX","FedEx Corporation",["fedex"]],["UPS","United Parcel Service",["ups"]],["UNP","Union Pacific",["union pacific"]],["LULU","Lululemon Athletica",["lululemon"]],
+["TGT","Target Corporation",["target"]],["LOW","Lowe's Companies",["lowes","lowe's"]],["CVS","CVS Health",["cvs","cvs health"]],["DKNG","DraftKings Inc.",["draftkings"]],
+["CCL","Carnival Corporation",["carnival","carnival cruise"]],["RCL","Royal Caribbean Group",["royal caribbean"]],["MAR","Marriott International",["marriott"]],
+["SPY","SPDR S&P 500 ETF",["s&p 500 etf","spdr s&p 500"]],["SPYX","SPDR S&P 500 Fossil Fuel Reserves Free ETF",["spdr fossil fuel"]],["QQQ","Invesco QQQ Trust",["qqq","nasdaq 100 etf"]],
+["QQQM","Invesco NASDAQ 100 ETF",["qqqm","nasdaq 100"]],["VOO","Vanguard S&P 500 ETF",["voo","vanguard s&p 500"]],["VUG","Vanguard Growth ETF",["vanguard growth"]],
+["VTI","Vanguard Total Stock Market ETF",["vanguard total stock market","total stock market etf"]],["SCHD","Schwab US Dividend Equity ETF",["schwab dividend"]],["DIA","SPDR Dow Jones Industrial Average ETF",["dow jones etf","diamonds etf"]],
+["IWM","iShares Russell 2000 ETF",["russell 2000 etf"]],["ARKK","ARK Innovation ETF",["ark innovation","arkk"]],["GLD","SPDR Gold Shares",["gold etf","spdr gold"]],
+["BRK.B","Berkshire Hathaway Class B",["berkshire hathaway","berkshire"]],["APLE","Apple Hospitality REIT",["apple hospitality"]]
+];
+COMPANY_DIRECTORY.forEach(function(e){if(!WATCH_NAMES[e[0]])WATCH_NAMES[e[0]]=e[1]});
+function normalizeCoName(s){return String(s||"").toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9 ]/g," ").replace(/\s+/g," ").trim()}
+function companySearch(query,limit){
+  var q=normalizeCoName(query),raw=String(query||"").trim().toUpperCase().replace(/\s+/g,"");
+  if(!q&&!raw)return[];
+  var scored=[],seen={};
+  COMPANY_DIRECTORY.forEach(function(e,idx){
+    var sym=e[0],name=e[1],aliases=e[2]||[],score=-1;
+    var nameN=normalizeCoName(name);
+    if(sym===raw)score=100;
+    else if(raw.length>=2&&sym.indexOf(raw)===0&&!/ /.test(String(query||"").trim()))score=84;
+    if(nameN===q)score=Math.max(score,98);
+    aliases.forEach(function(a){var an=normalizeCoName(a);if(an===q)score=Math.max(score,97);else if(an.indexOf(q)===0&&q.length>=3)score=Math.max(score,87);else if(q.length>=3&&an.indexOf(q)>=0)score=Math.max(score,74)});
+    if(score<0&&nameN.indexOf(q)===0&&q.length>=2)score=88;
+    if(score<0&&q.length>=3&&nameN.indexOf(q)>=0)score=76;
+    if(score<0&&q.indexOf(" ")>0){var toks=q.split(" "),ok=true;toks.forEach(function(t){if(nameN.indexOf(t)<0&&aliases.join(" ").indexOf(t)<0)ok=false});if(ok)score=66}
+    if(score>=0&&!seen[sym]){seen[sym]=1;scored.push({sym:sym,name:name,score:score,idx:idx})}
+    else if(score>=0&&seen[sym]){var ex=scored.filter(function(x){return x.sym===sym})[0];if(ex&&score>ex.score)ex.score=score}
+  });
+  /* also match anything already named in the watchlist / previously found */
+  Object.keys(WATCH_NAMES).forEach(function(sym){
+    if(seen[sym])return;
+    var nameN=normalizeCoName(WATCH_NAMES[sym]);
+    if(sym===raw||(q.length>=3&&nameN.indexOf(q)>=0)){seen[sym]=1;scored.push({sym:sym,name:WATCH_NAMES[sym],score:sym===raw?100:72,idx:999})}
+  });
+  scored.sort(function(a,b){return b.score-a.score||a.idx-b.idx||a.sym.localeCompare(b.sym)});
+  return scored.slice(0,limit||6).map(function(x){return{sym:x.sym,name:x.name,score:x.score}});
+}
+function isInWatchlist(sym){return WATCHLIST.indexOf(String(sym||"").toUpperCase())>=0}
+function syncWatchlistFromState(){
+  if(!S||!S.watchlistExtra)return;
+  S.watchlistExtra.forEach(function(sym){sym=String(sym||"").toUpperCase();if(sym&&WATCHLIST.indexOf(sym)<0)WATCHLIST.push(sym)});
+}
+function addStockToWatchlist(sym,name){
+  sym=String(sym||"").toUpperCase();if(!sym)return false;
+  if(name&&!WATCH_NAMES[sym])WATCH_NAMES[sym]=name;
+  if(isInWatchlist(sym)){toast(sym+" is already in your watchlist");return false}
+  WATCHLIST.push(sym);
+  if(!S.watchlistExtra)S.watchlistExtra=[];
+  if(S.watchlistExtra.indexOf(sym)<0)S.watchlistExtra.push(sym);
+  touch();toast(sym+" added to your watchlist");
+  return true;
+}
+async function openStockSymbol(sym,name){
+  sym=String(sym||"").toUpperCase();if(!sym)return;
+  if(name&&!WATCH_NAMES[sym])WATCH_NAMES[sym]=name;
+  toast("Looking up "+sym+"…");
+  var quote=await fetchQuote(sym);
+  LIVE.quotes[sym]=quote;currentStock=sym;stockTab="watchlist";
+  if(currentView!=="stocks"){go("stocks")}else{renderView()}
+  if(quote.unavailable)toast(quote.error||("Couldn't find live data for "+sym));
+}
+var SEED_TASKS=[
+["EGR 241","HW#7 (4.4–4.8)","assignment","2026-11-03","Tue Nov 3","MasteringEngineering homework covering Hibbeler sections 4.4–4.8: equations of equilibrium and dry friction. Late penalty 10%/day.",0],
+["EGR 122","CHAP7A + CHAP7B + EXP4.6","assignment","2026-11-03","Tue Nov 3","Excel chapter 7 exercises and EXP4.6 from the EGR 122 detailed schedule (charts and functions in Liengme's Guide to Excel).",0],
+["ENGR 1820L","Lab 5 Report","assignment","2026-11-04","Wed Nov 4, 1:15 PM","Lab 5 report (Intro to Circuits, labs 5.1–5.2). Due at the beginning of the lab period in TEGR 230; late is −25 pts within 24 hrs and not accepted after that.",0],
+["ENGR 1010","ME Quiz","assignment","2026-11-06","Fri Nov 6","Mechanical Engineering quiz in ENGR 1010 (Section H, TEGR 216).",0],
+["ENGR 1010","Accountability Journal Entry 8","assignment","2026-11-06","Fri Nov 6, 9:00 PM","Weekly accountability journal entry for ENGR 1010. The Accountability Journal is 10% of the course grade and is ongoing all semester.",0],
+["ENGR 1010","Technical Presenting (Alley)","reading","2026-11-06","Week of Nov 2","November reading for ENGR 1010: Michael Alley on technical presenting, alongside Project #2 work.",0],
+["ENGR 1820","Ch. 8–9; lab 6.1 Periodic Signals","reading","2026-11-06","Week of Nov 2","Lecture topics: applications of derivatives and introduction to integrals (Ch. 8–9). Lab 6.1 covers periodic signals.",0],
+["EGR 241","Hibbeler Ch. 5.1–5.4","reading","2026-11-06","Week of Nov 2","Statics reading: simple trusses, method of joints, zero-force members, method of sections.",0],
+["EGR 122","Excel EX 7–8 (charts, regression)","reading","2026-11-06","Week of Nov 2","Excel chapters 7–8: charts and regression, from Liengme's Guide to Excel.",0],
+["GNST 1000","Time & Money Management seminar topic","reading","2026-11-06","Week of Nov 2","GNST 1000 Week 5 seminar topic (odd/even sections alternate weeks).",0],
+["ENGR 1010","HW 7 Submission","assignment","2026-11-09","Mon Nov 9","ENGR 1010 homework 7 submission (Canvas).",0],
+["EGR 241","HW#8 (5.1 - 5.3) [Method of Joints]","assignment","2026-11-10","Tue Nov 10","MasteringEngineering homework on simple trusses and the method of joints (Hibbeler 5.1–5.3).",0],
+["EGR 122","BODE + NORMAL + CHAP8 + TEMP","assignment","2026-11-10","Tue Nov 10","Excel coursework due per the EGR 122 v1.03 schedule: BODE, NORMAL, CHAP8 and TEMP exercises.",0],
+["ICST 1050","Keller Quiz 1: Chs. Intro, 1, 3, 4","assignment","2026-11-10","Tue Nov 10","Canvas quiz on Timothy Keller, Every Good Endeavor — Foreword, Introduction, chapters 1, 3–4 (A Theology of Vocation Pt I). Open book, taken in Canvas during the assigned week. No late work accepted in ICST 1050.",0],
+["ICST 1050","Keller Foreword, Intro, chs. 1, 3–4","reading","2026-11-10","Tue Nov 10","Reading for Lecture 12: A Theology of Vocation Pt I.",0],
+["ICST 1050","Country Project (completed project)","assignment","2026-11-12","Thu Nov 12","Submit the completed Country Project (250 pts of the course total). Bibliography was due Oct 8; country sign-up and teams were Sept 24.",1],
+["EGR 122","Project 1 (AutoCAD drawings)","assignment","2026-11-12","Thu Nov 12","Project 1: multi-part engineering drawings covering AutoCAD Ch. 1–5. The project is 25% of the EGR 122 grade.",0],
+["GNST 1000","Personal Budget Assignment","assignment","2026-11-13","Fri Nov 13, 11:59 PM","Personal Budget Assignment for GNST 1000 (20 pts), due on Canvas. 20% deducted per day late.",1],
+["ICST 1050","Keller chs. 11–12 + Canvas quiz","reading","2026-11-17","Tue Nov 17","Keller chapters 11–12 with the weekly Canvas reading quiz.",0],
+["EGR 241","HW#9","assignment","2026-11-17","Week of Nov 10","MasteringEngineering homework for Ch. 5.5: frames and machines.",0],
+["EGR 122","Excel HW5 / CAP","assignment","2026-11-17","Tue Nov 17","Excel HW5 (differential equations handouts) and CAP exercise per the v1.03 schedule.",0],
+["ENGR 1820","Ch. 9 (integrals); lab 7 Bio-Med / lab 8 Two Loop Circuits","reading","2026-11-20","Weeks of Nov 9–16","Lecture: introduction to and applications of integrals (Ch. 9). Labs 7 (Bio-Med) and 8 (Two Loop Circuits).",0],
+["ICST 1050","Keller chs. 5, 7–8 + Canvas quiz","reading","2026-12-01","Tue Dec 1","Reading for Lecture 14: A Theology of Vocation Pt III, with Canvas quiz.",0],
+["EGR 122","AC Chapter 9 (Sectioning)","assignment","2026-12-03","Thu Dec 3","AutoCAD Chapter 9 coursework: sectioning (AC 9.1–9.2).",0],
+["EGR 122","AC Chapter 10 (P10-2, P10-8, P10-13)","assignment","2026-12-03","Thu Dec 3","AutoCAD Chapter 10: sectioning in AutoCAD and tolerancing problems P10-2, P10-8, P10-13.",0],
+["GNST 1000","Beyond the Classroom Activity","assignment","2026-12-04","Fri Dec 4, 11:59 PM","Complete at least 1 of 5 Beyond the Classroom activities (20 pts), submitted on Canvas.",0],
+["EGR 241","HW#10","assignment","2026-12-08","Week of Dec 1","MasteringEngineering homework for Ch. 6.4–6.6: moments of inertia for areas, parallel-axis theorem, composite areas.",0],
+["EGR 122","AC Chapter 13 + Chapter 14","assignment","2026-12-08","Tue Dec 8","AutoCAD tolerancing coursework (AC 13.1–13.9, AC 14.1–14.3) and course evaluation.",0],
+["ENGR 1010","Engineering Service hours (7 hours)","assignment","2026-12-09","Wed Dec 9","7 hours of engineering service required (15% of grade). Last day to submit hours is the last lecture day, Dec 9. The service form must be signed by the event coordinator.",0],
+["ENGR 1010","Landis Ch. 5","reading","2026-12-09","December","December reading: Landis, Studying Engineering, Ch. 5, alongside final exam prep.",0],
+["ENGR 1010","HW 2 Submission","assignment","2026-09-28","Completed","ENGR 1010 homework 2 submission.",1],
+["ENGR 1010","HW 4 Submission","assignment","2026-10-05","Completed","ENGR 1010 homework 4 submission.",1],
+["ENGR 1010","HW4 Quiz","assignment","2026-10-05","Completed","ENGR 1010 HW4 quiz.",1],
+["ENGR 1010","HW 5 Submission","assignment","2026-10-19","Completed","ENGR 1010 homework 5 submission.",1],
+["ENGR 1010","HW 6 Quiz","assignment","2026-10-26","Completed","ENGR 1010 HW 6 quiz.",1],
+["ENGR 1010","Accountability Journal Entry 4","assignment","2026-10-09","Completed","Weekly accountability journal entry for ENGR 1010.",1],
+["ENGR 1010","GE Quiz","assignment","2026-10-30","Fri Oct 30","General Engineering quiz in ENGR 1010.",0],
+["ENGR 1010","Accountability Journal Entry 7","assignment","2026-10-30","Fri Oct 30, 9:00 PM","Weekly accountability journal entry for ENGR 1010.",0],
+["EGR 241","HW#3 (2.9–3.4, MasteringEngineering)","assignment","2026-09-29","Completed","Statics HW#3: moment of a force, cross product, principle of moments.",1],
+["EGR 241","HW#4 (3.5–3.6)","assignment","2026-10-06","Completed","Statics HW#4: moment about a specified axis, moment of a couple.",1],
+["EGR 241","HW#5 (3.7–3.9)","assignment","2026-10-13","Completed","Statics HW#5: simplification of force/couple systems, distributed loading.",1],
+["EGR 241","HW#6 (4.1-4.3)","assignment","2026-10-27","Completed","Statics HW#6: rigid-body equilibrium, free-body diagrams, equations of equilibrium.",1],
+["EGR 122","P4-9","assignment","2026-10-13","Completed","AutoCAD problem P4-9 (layers, line types, properties).",1],
+["EGR 122","P4-15","assignment","2026-10-13","Completed","AutoCAD problem P4-15.",1],
+["EGR 122","P4-18","assignment","2026-10-13","Completed","AutoCAD problem P4-18.",1],
+["EGR 122","Chapter 7 PDF Submission + DIMEDIT + DIMTUT + Dimensioning Quiz + P7-1","assignment","2026-10-22","Completed","Dimensioning coursework: chapter 7 PDF, DIMEDIT, DIMTUT, dimensioning quiz and P7-1.",1],
+["EGR 122","Chapter 8 PDF Submission + P8-3 + P8-8 + P8-17 + P8-19","assignment","2026-10-27","Completed","AutoCAD chapter 8 coursework and problems.",1],
+["EGR 122","CHAP4A/B + EXP4.7 + FOURIER","assignment","2026-11-03","Completed","Excel chapter 4 coursework: CHAP4A, CHAP4B, EXP4.7 and FOURIER.",1],
+["EGR 122","CHAP7B + BODE + NORMAL","assignment","2026-11-10","Completed","Excel coursework: CHAP7B, BODE and NORMAL.",1],
+["ENGR 1820L","Lab 3 Report Submission + Lab 4 Prelab Quiz","assignment","2026-10-19","Completed","Lab 3 report and Lab 4 prelab quiz.",1],
+["GNST 1000","Title IX Assessment (trainED modules + quiz)","assignment","2026-10-09","Completed","Title IX Assessment: trainED modules plus quiz (20 pts).",1],
+["GNST 1000","MCode for Students Assessment","assignment","2026-10-30","Completed","MCode for Students Assessment: upload the PDF report to Canvas (20 pts).",1],
+["ICST 1050","Carson 11–14 Quiz","assignment","2026-10-06","Completed","Canvas quiz on D. A. Carson, The God Who Is There, chapters 11–14.",1],
+["GNST 1000","Hazing Awareness & Prevention Assessment","assignment","2026-09-25","Fri Sep 25, 11:59 PM","Hazing Awareness & Prevention Assessment for GNST 1000 (20 pts), due on Canvas.",0]
+].map(function(r,i){return{id:"t"+(i+1),course:r[0],title:r[1],kind:r[2],dueDate:r[3],dueLabel:r[4],description:r[5],seedDone:!!r[6]}});
+var SEED_EXAMS=[
+{id:"e1",course:"ICST 1050",title:"Exam #2: Global Christianity",date:"2026-11-05",time:"In class, 3:45–5:15 PM",location:"HSCC/S292",description:"Unit 2 exam covering the history and spread of Christianity across Africa, Latin America, Europe, Asia, and North America, following the student presentation weeks. 100 points.",study:["History and spread of Christianity — overview lecture (Oct 15)","Christianity in Africa — key movements, figures, and growth patterns","Christianity in Latin America — colonial roots and modern Pentecostal growth","Christianity in Europe — secularization and historical centers","Christianity in Asia — growth under persecution, house churches, missions history","Christianity in North America — revivals, denominations, cultural Christianity","Compare the five regions: what drove growth or decline in each?"]},
+{id:"e2",course:"EGR 241",title:"Midterm 2 (Ch. 4, 5, 6)",date:"2026-11-19",time:"In class, 2:00–3:30 PM",location:"TEGR 119",description:"Second statics midterm covering equilibrium (Ch. 4), trusses/frames (Ch. 5), and center of gravity/centroids (Ch. 6). Midterms are 40% of the course grade together.",study:["Ch. 4: free-body diagrams and equations of equilibrium","Ch. 4.5–4.8: two-/three-force members and dry friction","Ch. 5.1–5.4: simple trusses, method of joints, zero-force members, method of sections","Ch. 5.5: frames and machines","Ch. 6.1–6.2: center of gravity, mass, and centroid of composite bodies","Redo HW#6–HW#9 problems without notes"]},
+{id:"e3",course:"EGR 122",title:"Test 2 (Excel Ch. 1–4, 7–8)",date:"2026-11-19",time:"In class (section C)",location:"TEGR 302",description:"Second EGR 122 test, on the Excel unit: window and basic operations (Ch. 1–2), functions (Ch. 3–4), charts and regression (Ch. 7–8). Exams are 25% of the course grade.",study:["Excel Ch. 1–2: window, basic operations, printing","Excel Ch. 3–4: functions (CHAP4A/B, EXP4.6, EXP4.7, FOURIER)","Excel Ch. 7: charts (CHAP7A/B, BODE, NORMAL, TEMP)","Excel Ch. 8: regression","Practice building a chart and a regression from raw data start to finish"]},
+{id:"e4",course:"ICST 1050",title:"Exam #3: God and Our Work",date:"2026-12-08",time:"In class, 3:45–5:15 PM",location:"HSCC/S292",description:"Unit 3 exam on a theology of vocation, based on Timothy Keller's Every Good Endeavor. 100 points.",study:["Keller Foreword, Intro, chs. 1, 3–4: a theology of vocation Pt I","Keller chs. 11–12","Keller chs. 5, 7–8: a theology of vocation Pt III–IV","Key terms: vocation, common grace, the cultural mandate","Connect Keller's framework to the course's biblical themes from Unit 1"]},
+{id:"e5",course:"EGR 241",title:"Final Exam (comprehensive)",date:"2026-12-10",time:"12:00–2:00 PM",location:"TEGR 119",description:"Comprehensive statics final covering Ch. 1–6. The final is 30% of the course grade.",study:["Ch. 1–2: vectors, force systems, dot/cross products","Ch. 3: moments, couples, distributed loading","Ch. 4: equilibrium and friction","Ch. 5: trusses, frames, and machines","Ch. 6: centroids and moments of inertia (parallel-axis theorem)","Full timed practice set from past homeworks"]},
+{id:"e6",course:"EGR 122",title:"Final Exam (comprehensive)",date:"2026-12-10",time:"9:30–11:30 AM (Section C)",location:"TEGR 302",description:"Comprehensive EGR 122 final covering AutoCAD and Excel units. The final is 25% of the course grade.",study:["AutoCAD Ch. 2–4: draw commands, orthographic projection, layers","AutoCAD Ch. 7–8: dimensioning","AutoCAD Ch. 9–10, 13–14: sectioning and tolerancing","Excel Ch. 1–4, 7–8: functions, charts, regression"]},
+{id:"e7",course:"ENGR 1010",title:"Final Exam",date:"2026-12-12",time:"Finals week, Dec 10–15 (exact slot on Canvas)",location:"TEGR 216",description:"ENGR 1010 final exam, worth 10% of the course grade. December focus: Landis Ch. 5 and final exam prep.",study:["Landis Ch. 5","Landis Chs. 2–4 review","Technical presenting (Alley) key points","Grit (Duckworth) core concepts","Project #1 and #2 lessons learned"]},
+{id:"e8",course:"ENGR 1820",title:"Lecture Final Exam",date:"2026-12-08",time:"Week of Dec 7 (date TBA)",location:"—",description:"Final exam for the ENGR 1820 lecture (Ch. 1–9). There is no lab final exam.",study:["Ch. 1–2: linear and quadratic equations","Ch. 3–4: trigonometry and 2-D vectors","Ch. 5–6: complex numbers, sinusoids","Ch. 7: systems of linear equations","Ch. 8–9: derivatives and integrals, with applications"]},
+{id:"e9",course:"ICST 1050",title:"Exam #1: Biblical Themes",date:"2026-10-13",time:"In class",location:"HSCC/S292",description:"Unit 1 exam on biblical themes, based on Carson, The God Who Is There. 100 points.",study:[],seedDone:true},
+{id:"e10",course:"EGR 241",title:"Midterm 1 (Ch. 1, 2, 3)",date:"2026-10-15",time:"In class",location:"TEGR 119",description:"First statics midterm covering mechanics fundamentals, vectors, and moments (Ch. 1–3).",study:[],seedDone:true},
+{id:"e11",course:"EGR 122",title:"Test 1 (AutoCAD Ch. 2–4)",date:"2026-10-20",time:"In class (section C)",location:"TEGR 302",description:"First EGR 122 test on AutoCAD chapters 2–4: workspace and coordinates, draw commands, orthographic projection, layers.",study:[],seedDone:true}
+];
+/* Seeded calendar: Fall 2026 class schedule + known work shifts and events, taken from
+   Noah's synced calendar cache in the Muse planner. EGR 122-C meets Tue/Thu 10:30 AM
+   per his calendar (kept as-is). Events are fully editable; kind "work" shows duration. */
+function seedEvents(){
+  var evs=[],n=0;
+  function add(date,title,start,end,loc,kind,allDay){n++;evs.push({id:"seed-"+n,title:title,dateStr:date,startLabel:start||"",endLabel:end||"",allDay:!!allDay,location:loc||"",kind:kind})}
+  var start="2026-09-07",end="2026-12-11",d=start;
+  var skip={"2026-11-26":1,"2026-11-27":1}; /* Thanksgiving */
+  while(d<=end){
+    var dow=new Date(d+"T12:00:00").getDay();
+    if(!skip[d]){
+      if(dow===1||dow===3||dow===5) add(d,"ENGR1010-H · Introduction to Engineering","8:15 AM","9:15 AM","TEGR/216","class");
+      if(dow===2){
+        add(d,"GNST0500-A · Chapel Convocation","9:00 AM","10:00 AM","Events Center","class");
+        add(d,"ENGR1220-C · Visualization Languages I","10:30 AM","12:00 PM","TEGR/302","class");
+        add(d,"ENGR2410-A · Statics","2:00 PM","3:30 PM","TEGR/119","class");
+        add(d,"ICST1050-F · Introduction to Global Studies","3:45 PM","5:15 PM","HSCC/S292","class");
+      }
+      if(dow===4){
+        add(d,"ENGR1220-C · Visualization Languages I","10:30 AM","12:00 PM","TEGR/302","class");
+        add(d,"ENGR2410-A · Statics","2:00 PM","3:30 PM","TEGR/119","class");
+        add(d,"ICST1050-F · Introduction to Global Studies","3:45 PM","5:15 PM","HSCC/S292","class");
+      }
+      if(dow===3){
+        add(d,"GNST1000-C2 · First Year Experience","10:45 AM","11:45 AM","PBLD/203","class");
+        add(d,"ENGR1820L-G · Intro Math for Engr App Lab","1:15 PM","2:45 PM","TEGR/230","class");
+      }
+    }
+    d=addDaysStr(d,1);
+  }
+  /* Known work shifts (from his calendar) */
+  add("2026-11-02","Noah Work","10:30 AM","4:15 PM","","work");
+  add("2026-11-04","Noah Work","4:30 PM","9:30 PM","8432 Magnolia Ave, Riverside CA 92504","work");
+  add("2026-11-06","Noah Work","1:30 PM","8:00 PM","","work");
+  add("2026-11-07","Noah Work","5:00 PM","9:30 PM","8432 Magnolia Ave, Riverside CA 92504","work");
+  /* Known one-off events */
+  add("2026-11-03","Election Day","","","","event",true);
+  add("2026-11-05","Dinner with Kyle","6:00 PM","7:00 PM","","event");
+  add("2026-11-11","Veterans Day","","","","event",true);
+  add("2026-11-13","Parent and Family Weekend","","","","event",true);
+  add("2026-11-19","Robots Got Talent (ENGR 1010)","","","","event",true);
+  add("2026-11-26","Thanksgiving Day","","","","event",true);
+  add("2026-11-27","Black Friday","","","","event",true);
+  add("2026-12-09","ENGR 1010 — Engineering Service hours due (7 hrs)","","","","assignment",true);
+  /* Exam markers (all-day, as on his calendar) */
+  add("2026-11-05","📝 ICST 1050: Exam #2 (Global Christianity)","","","","exam",true);
+  add("2026-11-19","📝 EGR 122: Test 2 (Excel)","","","","exam",true);
+  add("2026-11-19","📝 EGR 241: Midterm 2 (Ch. 4-6)","","","","exam",true);
+  add("2026-12-08","📝 ICST 1050: Exam #3 (God and Our Work)","","","","exam",true);
+  add("2026-12-10","📝 EGR 122: Final exam (comprehensive)","","","","exam",true);
+  add("2026-12-10","📝 EGR 241: Final exam (comprehensive)","","","","exam",true);
+  return evs;
+}
+</script>
+
+<script>
+"use strict";
+/* =============== config (this browser only) =============== */
+var CFG={
+  get url(){try{return localStorage.getItem("dp_supa_url")||""}catch(e){return""}},
+  get key(){try{return localStorage.getItem("dp_supa_key")||""}catch(e){return""}},
+  get gemini(){try{return localStorage.getItem("dp_gemini_key")||""}catch(e){return""}},
+  setAll:function(url,key,gem){try{if(url!=null)localStorage.setItem("dp_supa_url",url);if(key!=null)localStorage.setItem("dp_supa_key",key);if(gem!=null)localStorage.setItem("dp_gemini_key",gem)}catch(e){}},
+  clear:function(){try{localStorage.removeItem("dp_supa_url");localStorage.removeItem("dp_supa_key");localStorage.removeItem("dp_gemini_key")}catch(e){}}
+};
+/* =============== planner state =============== */
+function defaultState(){
+  var td={},ed={},pin={};
+  SEED_TASKS.forEach(function(t){if(t.seedDone)td[t.id]=true});
+  SEED_EXAMS.forEach(function(e){if(e.seedDone)ed[e.id]=true});
+  pin["e1"]=true;
+  return {v:1,_updatedAt:new Date().toISOString(),tasksDone:td,customTasks:[],hiddenTasks:[],examsDone:ed,studyDone:{},examPinned:pin,holdings:[],watchlistExtra:[],events:seedEvents()};
+}
+var S=defaultState();
+function loadLocalState(){try{var raw=localStorage.getItem("dp_state_v1");if(raw){var p=JSON.parse(raw);if(p&&p.v===1){S=p;return true}}}catch(e){}return false}
+function saveLocalState(){try{localStorage.setItem("dp_state_v1",JSON.stringify(S))}catch(e){}}
+function allTasks(){
+  var list=SEED_TASKS.filter(function(t){return S.hiddenTasks.indexOf(t.id)<0}).map(function(t){return{id:t.id,course:t.course,title:t.title,kind:t.kind,dueDate:t.dueDate,dueLabel:t.dueLabel,description:t.description,completed:!!S.tasksDone[t.id],custom:false}});
+  S.customTasks.forEach(function(t){list.push({id:t.id,course:t.course,title:t.title,kind:t.kind,dueDate:t.dueDate,dueLabel:t.dueLabel,description:t.description||"",completed:!!S.tasksDone[t.id],custom:true})});
+  list.sort(function(a,b){return (a.dueDate||"9999").localeCompare(b.dueDate||"9999")});
+  return list;
+}
+function allExams(){
+  return SEED_EXAMS.map(function(e){return{id:e.id,course:e.course,title:e.title,date:e.date,time:e.time,location:e.location,description:e.description,completed:!!S.examsDone[e.id]||!!e.seedDone&&S.examsDone[e.id]!==false&&!!e.seedDone,pinned:!!S.examPinned[e.id],study:e.study.map(function(s,i){return{id:e.id+"-s"+i,text:s,completed:!!(S.studyDone[e.id+"-s"+i])}})}})
+    .map(function(e){ /* completed = explicit flag, or seed done unless user unchecked */
+      var seed=SEED_EXAMS.filter(function(x){return x.id===e.id})[0];
+      e.completed = (e.id in S.examsDone) ? !!S.examsDone[e.id] : !!seed.seedDone;
+      return e;
+    })
+    .sort(function(a,b){return a.date.localeCompare(b.date)});
+}
+/* =============== Supabase sync (planner_state table) =============== */
+var sbClient=null,syncState={mode:"local",msg:"This device only",lastOk:null,error:null},saveTimer=null,pollTimer=null;
+function supaConfigured(){return !!(CFG.url&&CFG.key)}
+var sbLoadPromise=null;
+function loadSupabaseLib(){
+  if(typeof supabase!=="undefined"&&supabase.createClient)return Promise.resolve(true);
+  if(sbLoadPromise)return sbLoadPromise;
+  sbLoadPromise=new Promise(function(resolve){
+    var done=false;function fin(ok){if(!done){done=true;resolve(ok)}}
+    var sc=document.createElement("script");
+    sc.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js";sc.async=true;
+    sc.onload=function(){fin(typeof supabase!=="undefined"&&!!supabase.createClient)};
+    sc.onerror=function(){fin(false)};
+    document.head.appendChild(sc);
+    setTimeout(function(){fin(typeof supabase!=="undefined"&&!!supabase.createClient)},8000);
+  });
+  return sbLoadPromise;
+}
+async function initSupabase(){
+  sbClient=null;
+  if(!supaConfigured()){syncState={mode:"local",msg:"This device only — add Supabase in Settings to sync",lastOk:null,error:null};renderSync();return}
+  syncState={mode:"busy",msg:"Connecting to Supabase…",lastOk:null,error:null};renderSync();
+  var libOk=await loadSupabaseLib();
+  if(!libOk){syncState={mode:"error",msg:"Supabase couldn't load — working on this device's copy",lastOk:null,error:"cdn timeout"};renderSync();return}
+  try{sbClient=supabase.createClient(CFG.url,CFG.key)}catch(e){syncState={mode:"error",msg:"Supabase config error: "+e.message,lastOk:null,error:String(e)};renderSync();return}
+  pullRemote(true);
+}
+function extractRemoteState(rows){
+  if(!rows||!rows.length)return null;
+  var row=rows.filter(function(r){return r.id==="main"})[0]||rows[0];
+  var st=row.state||row.value||row.data||row.payload||null;
+  if(typeof st==="string"){try{st=JSON.parse(st)}catch(e){st=null}}
+  return st&&st.v===1?st:null;
+}
+async function pullRemote(initial){
+  if(!sbClient)return;
+  try{
+    var res=await withTimeout(sbClient.from("planner_state").select("*"),8000,"Supabase load");
+    if(res.error)throw res.error;
+    var remote=extractRemoteState(res.data);
+    if(remote){
+      var rT=new Date(remote._updatedAt||0).getTime(),lT=new Date(S._updatedAt||0).getTime();
+      if(rT>lT){S=remote;if(typeof syncWatchlistFromState==="function")syncWatchlistFromState();saveLocalState();renderAll();toast("Synced from Supabase")}
+    } else if(initial){
+      await pushRemote(); /* first device: seed the shared row */
+    }
+    syncState={mode:"ok",msg:"Synced · Supabase",lastOk:new Date().toISOString(),error:null};
+  }catch(e){
+    syncState={mode:"error",msg:"Sync error — working on this device's copy",lastOk:syncState.lastOk,error:(e&&e.message)||String(e)};
+  }
+  renderSync();
+}
+async function pushRemote(){
+  if(!sbClient)return;
+  try{
+    var payload={id:"main",state:S,updated_at:new Date().toISOString()};
+    var res=await withTimeout(sbClient.from("planner_state").upsert(payload,{onConflict:"id"}),8000,"Supabase save");
+    if(res.error){
+      /* table may name the json column differently — try "value" */
+      var res2=await withTimeout(sbClient.from("planner_state").upsert({id:"main",value:S,updated_at:new Date().toISOString()},{onConflict:"id"}),8000,"Supabase save");
+      if(res2.error)throw res.error;
+    }
+    syncState={mode:"ok",msg:"Synced · Supabase",lastOk:new Date().toISOString(),error:null};
+  }catch(e){
+    syncState={mode:"error",msg:"Sync error — changes saved on this device",lastOk:syncState.lastOk,error:(e&&e.message)||String(e)};
+  }
+  renderSync();
+}
+function touch(){
+  S._updatedAt=new Date().toISOString();
+  saveLocalState();
+  if(sbClient){syncState.mode="busy";syncState.msg="Syncing…";renderSync();clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700)}
+}
+function renderSync(){
+  var el=$("syncStatus");if(!el)return;
+  var dot=syncState.mode==="ok"?"ok":syncState.mode==="error"?"err":syncState.mode==="busy"?"busy":"";
+  el.innerHTML='<span class="statusdot '+dot+'"></span> '+esc(syncState.msg);
+  el.title=syncState.error||"";
+}
+setInterval(function(){if(sbClient&&document.visibilityState==="visible")pullRemote(false)},45000);
+document.addEventListener("visibilitychange",function(){if(sbClient&&document.visibilityState==="visible")pullRemote(false)});
+</script>
+
+<script>
+"use strict";
+/* =============== live data: weather / news / stocks =============== */
+var LIVE={weather:null,weatherAsOf:null,news:null,newsAsOf:null,quotes:{},quotesAsOf:null,quotesError:null,status:{weather:"loading",news:"loading",quotes:"loading"}};
+var WX_CODES={0:"Clear sky",1:"Mostly clear",2:"Partly cloudy",3:"Overcast",45:"Foggy",48:"Foggy",51:"Light drizzle",53:"Drizzle",55:"Drizzle",56:"Freezing drizzle",57:"Freezing drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",66:"Freezing rain",67:"Freezing rain",71:"Light snow",73:"Snow",75:"Heavy snow",77:"Snow grains",80:"Light showers",81:"Showers",82:"Violent showers",85:"Snow showers",86:"Snow showers",95:"Thunderstorm",96:"Thunderstorm, hail",99:"Thunderstorm, hail"};
+function wxIcon(code){if(code===0)return"☀️";if(code<=2)return"🌤️";if(code===3)return"☁️";if(code===45||code===48)return"🌫️";if(code>=95)return"⛈️";if(code>=71&&code<=86)return"🌨️";if(code>=51)return"🌧️";return"🌤️"}
+async function fetchWeather(){
+  LIVE.status.weather="loading";
+  try{
+    var u="https://api.open-meteo.com/v1/forecast?latitude=33.9533&longitude=-117.3962&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FLos_Angeles&forecast_days=7";
+    var r=await fetchWithTimeout(u,6000);if(!r.ok)throw new Error("weather "+r.status);
+    var j=await r.json();
+    LIVE.weather={temp:Math.round(j.current.temperature_2m),feels:Math.round(j.current.apparent_temperature),hum:j.current.relative_humidity_2m,wind:Math.round(j.current.wind_speed_10m),code:j.current.weather_code,desc:WX_CODES[j.current.weather_code]||"—",daily:j.daily.time.map(function(d,i){return{date:d,high:Math.round(j.daily.temperature_2m_max[i]),low:Math.round(j.daily.temperature_2m_min[i]),code:j.daily.weather_code[i]}})};
+    LIVE.weatherAsOf=new Date().toISOString();LIVE.status.weather="ok";
+  }catch(e){LIVE.status.weather="error"}
+  if(currentView==="dashboard")renderView();
+}
+async function fetchNews(){
+  LIVE.status.news="loading";
+  var feeds=["https://feeds.bbci.co.uk/news/rss.xml","https://feeds.npr.org/1001/rss.xml"];
+  for(var i=0;i<feeds.length;i++){
+    try{
+      var r=await fetchWithTimeout("https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(feeds[i]),6000);
+      if(!r.ok)throw new Error("news "+r.status);
+      var j=await r.json();
+      if(j&&j.items&&j.items.length){
+        LIVE.news=j.items.slice(0,9).map(function(it){return{title:it.title,url:it.link,source:(j.feed&&j.feed.title)||"News",snippet:(it.description||"").replace(/<[^>]*>/g,"").slice(0,220)}});
+        LIVE.newsAsOf=new Date().toISOString();LIVE.status.news="ok";break;
+      }
+    }catch(e){/* try next feed */}
+  }
+  if(!LIVE.news)LIVE.status.news="error";
+  if(currentView==="dashboard")renderView();
+}
+/* Stock quotes: one batched CNBC quote request for the whole watchlist.
+   CNBC's quote API answers in about a second, allows cross-origin reads,
+   and covers every watchlist symbol including SPCX. The previous chain
+   (Stooq direct, then Yahoo via the AllOrigins proxy, once per symbol)
+   hung for tens of seconds per symbol, which is why Stocks never loaded.
+   Every request has a hard timeout; a symbol with no live quote gets a
+   clear per-symbol status instead of blocking the rest. */
+function cnbcNum(v){if(v==null)return null;var n=parseFloat(String(v).replace(/[$,%]/g,""));return isNaN(n)?null:n}
+function unavailableQuote(sym,why){return{symbol:sym,name:WATCH_NAMES[sym]||sym,price:null,change:null,changePercent:null,ytdPercent:null,open:null,high:null,low:null,week52High:null,week52Low:null,asOf:null,volume:null,history:[],unavailable:true,error:why||"Quote unavailable right now"}}
+function quoteFromCnbc(q,prev){
+  var price=cnbcNum(q.last);if(price==null)return null;
+  var open=cnbcNum(q.open),high=cnbcNum(q.high),low=cnbcNum(q.low);
+  if(open===0)open=null;if(high===0)high=null;if(low===0)low=null;
+  return{symbol:String(q.symbol).toUpperCase(),name:q.name||WATCH_NAMES[q.symbol]||q.symbol,price:price,
+    change:cnbcNum(q.change),changePercent:cnbcNum(q.change_pct),
+    ytdPercent:(prev&&prev.ytdPercent!=null)?prev.ytdPercent:null,
+    open:open,high:high,low:low,week52High:cnbcNum(q.yrhiprice),week52Low:cnbcNum(q.yrloprice),
+    asOf:q.last_time||null,volume:q.volume||null,source:"CNBC",
+    history:(prev&&prev.history)||[]};
+}
+async function fetchCnbcQuotes(symbols){
+  var url="https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?symbols="+encodeURIComponent(symbols.join("|"))+"&requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json";
+  var r=await fetchWithTimeout(url,7000);
+  if(!r.ok)throw new Error("CNBC quotes "+r.status);
+  var j=await r.json();
+  var list=j&&j.FormattedQuoteResult&&j.FormattedQuoteResult.FormattedQuote;
+  if(!list||!list.length)throw new Error("CNBC quotes empty");
+  var out={};
+  list.forEach(function(q){if(q&&q.symbol)out[String(q.symbol).toUpperCase()]=q});
+  return out;
+}
+async function fetchQuote(sym){
+  sym=String(sym||"").toUpperCase();
+  try{
+    var map=await fetchCnbcQuotes([sym]);
+    var q=map[sym];
+    if(q&&q.code===0){var made=quoteFromCnbc(q,LIVE.quotes[sym]);if(made)return made}
+    return unavailableQuote(sym,"No live quote found for "+sym+" — check the ticker symbol and try again.");
+  }catch(e){
+    return unavailableQuote(sym,"Quote for "+sym+" couldn't load (timed out or offline) — try again in a moment.");
+  }
+}
+async function fetchAllQuotes(){
+  LIVE.status.quotes="loading";
+  var symbols=WATCHLIST.slice();
+  if(typeof S!=="undefined"&&S.holdings)S.holdings.forEach(function(h){if(h.symbol&&symbols.indexOf(h.symbol)<0)symbols.push(h.symbol)});
+  Object.keys(LIVE.quotes).forEach(function(s){if(symbols.indexOf(s)<0)symbols.push(s)});
+  try{
+    var map=await fetchCnbcQuotes(symbols);
+    var out={},okCount=0;
+    symbols.forEach(function(sy){
+      var q=map[sy];
+      if(q&&q.code===0){var made=quoteFromCnbc(q,LIVE.quotes[sy]);if(made){out[sy]=made;okCount++;return}}
+      out[sy]=unavailableQuote(sy,"No live quote returned for "+sy+" right now.");
+    });
+    LIVE.quotes=out;LIVE.quotesAsOf=new Date().toISOString();
+    LIVE.status.quotes=okCount?"ok":"error";
+    LIVE.quotesError=okCount===0?"Live prices couldn't load right now — check your connection and tap Refresh prices.":(okCount<symbols.length?(symbols.length-okCount)+" of "+symbols.length+" symbols had no live quote — each is marked below.":null);
+  }catch(e){
+    LIVE.status.quotes="error";
+    if(!Object.keys(LIVE.quotes).length){
+      var out2={};symbols.forEach(function(sy){out2[sy]=unavailableQuote(sy,"Price timed out — tap Refresh prices to retry.")});
+      LIVE.quotes=out2;
+    }
+    LIVE.quotesError="Live prices couldn't load (timed out or offline) — tap Refresh prices to retry.";
+  }
+  renderTickers();
+  if(currentView==="dashboard"||currentView==="stocks")renderView();
+}
+function sparklineSVG(history,w,h){
+  if(!history||history.length<2)return"";
+  var closes=history.map(function(p){return p.close}),min=Math.min.apply(null,closes),max=Math.max.apply(null,closes),rng=(max-min)||1;
+  var pts=closes.map(function(c,i){return (i/(closes.length-1)*w).toFixed(1)+","+(h-2-((c-min)/rng)*(h-4)).toFixed(1)}).join(" ");
+  var up=closes[closes.length-1]>=closes[0];
+  return '<svg class="spark" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="'+(up?"#22c55e":"#ef4444")+'" stroke-width="1.6"/></svg>';
+}
+function chartSVG(history){
+  if(!history||history.length<2)return '<p class="muted small">No price history available.</p>';
+  var w=640,h=220,pad=8,closes=history.map(function(p){return p.close}),min=Math.min.apply(null,closes),max=Math.max.apply(null,closes),rng=(max-min)||1;
+  var pts=closes.map(function(c,i){return (pad+i/(closes.length-1)*(w-2*pad)).toFixed(1)+","+(h-pad-((c-min)/rng)*(h-2*pad)).toFixed(1)}).join(" ");
+  var up=closes[closes.length-1]>=closes[0],col=up?"#22c55e":"#ef4444";
+  return '<svg viewBox="0 0 '+w+' '+h+'" style="width:100%;height:auto" role="img" aria-label="Price history chart, '+history[0].date+' to '+history[history.length-1].date+'"><polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="2"/>'
+    +'<text x="'+pad+'" y="14" fill="var(--dim)" font-size="12">High '+money(max)+'</text>'
+    +'<text x="'+pad+'" y="'+(h-4)+'" fill="var(--dim)" font-size="12">Low '+money(min)+' · '+history[0].date+' → '+history[history.length-1].date+'</text></svg>';
+}
+function renderTickers(){
+  var items=WATCHLIST.map(function(s){return LIVE.quotes[s]}).filter(Boolean);
+  function half(p){return items.map(function(q){
+    var cls=q.changePercent==null?"flat":q.changePercent<0?"down":"up";
+    return '<span class="tick-item"><span class="sym">'+esc(q.symbol)+'</span><span>'+(q.price!=null?money(q.price):"—")+'</span><span class="'+cls+'">'+pct(q.changePercent)+'</span>'+(q.ytdPercent!=null?'<span style="color:#8fa3bc">YTD '+pct(q.ytdPercent)+'</span>':"")+'</span>'}).join("")||'<span class="tick-item"><span class="flat">Loading market data…</span></span>'}
+  $("stockTicker").innerHTML=half("a")+half("b");
+  var exams=allExams().filter(function(e){return !e.completed&&daysUntil(e.date)>=0&&daysUntil(e.date)<=14});
+  if(!exams.length){$("examTickerWrap").style.display="none";return}
+  $("examTickerWrap").style.display="";
+  function ehalf(p){return exams.map(function(e){var d=daysUntil(e.date);return '<span class="tick-item"><span><b>'+esc(e.course)+'</b> · '+esc(e.title)+' — '+fmtDay(e.date)+'</span><span class="down">('+(d===0?"today":d+"d away")+')</span></span>'}).join("")}
+  $("examTicker").innerHTML=ehalf("a")+ehalf("b");
+}
+/* =============== navigation =============== */
+var NAV=[
+ {view:"dashboard",label:"Dashboard",icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg>'},
+ {view:"calendar",label:"Calendar",icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'},
+ {view:"tasks",label:"Tasks",icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M4 6l2 2 4-4M4 13l2 2 4-4M4 20l2 2 4-4M13 6h8M13 13h8M13 20h8"/></svg>'},
+ {view:"email",label:"Email",icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>'},
+ {view:"exams",label:"Exams",icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M12 3L2 8l10 5 10-5-10-5zM6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/></svg>'},
+ {view:"stocks",label:"Stocks",icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M3 20h18M6 20v-6M11 20V8M16 20v-9M21 20V4"/></svg>'}
+];
+var currentView="dashboard",currentStock=null,stockTab="watchlist",taskTab="week",calSelected=todayStr(),examFocusId=null;
+function navHTML(mobile){
+  return NAV.map(function(n){
+    return '<button type="button" class="navbtn'+(currentView===n.view?" active":"")+'" data-nav="'+n.view+'" aria-label="'+n.label+'" '+(currentView===n.view?'aria-current="page"':"")+'><span class="tile">'+n.icon+'</span>'+n.label+'</button>';
+  }).join("");
+}
+function renderNav(){
+  $("sideNav").innerHTML=navHTML(false)+pinnedHTML(true);
+  $("mobileNav").innerHTML=navHTML(true);
+  $("pinnedRow").innerHTML='<div style="display:flex;gap:8px;overflow-x:auto">'+pinnedExams().map(function(e){return '<button type="button" class="btn small" data-pinned="'+e.id+'" style="flex-shrink:0">📚 '+esc(e.course)+' · '+fmtDay(e.date)+'</button>'}).join("")+'</div>';
+  if(window.innerWidth>=900)$("pinnedRow").style.display="none";else $("pinnedRow").style.display=pinnedExams().length?"":"none";
+  document.querySelectorAll("[data-nav]").forEach(function(b){b.addEventListener("click",function(){go(b.getAttribute("data-nav"))})});
+  document.querySelectorAll("[data-pinned]").forEach(function(b){b.addEventListener("click",function(){examFocusId=b.getAttribute("data-pinned");go("exams")})});
+}
+function pinnedExams(){return allExams().filter(function(e){return e.pinned&&!e.completed})}
+function pinnedHTML(side){
+  var p=pinnedExams();if(!p.length)return"";
+  return '<div style="margin-top:20px;border-top:1px solid var(--border);padding-top:12px"><p class="tiny" style="font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--dim);padding:0 8px">Study plans</p>'
+   +p.map(function(e){return '<button type="button" class="navbtn" data-pinned="'+e.id+'"><span style="min-width:0"><b style="color:var(--text)">'+esc(e.course)+'</b><span style="display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(e.title)+' · '+fmtDay(e.date)+'</span></span></button>'}).join("")+'</div>';
+}
+function go(view){currentView=view;renderNav();renderView();window.scrollTo({top:0})}
+function renderAll(){renderNav();renderTickers();renderView()}
+</script>
+
+<script>
+"use strict";
+/* =============== views =============== */
+function renderView(){
+  var root=$("viewRoot");
+  if(currentView==="dashboard")root.innerHTML=viewDashboard();
+  else if(currentView==="calendar")root.innerHTML=viewCalendar();
+  else if(currentView==="tasks")root.innerHTML=viewTasks();
+  else if(currentView==="email")root.innerHTML=viewEmail();
+  else if(currentView==="exams")root.innerHTML=viewExams();
+  else if(currentView==="stocks")root.innerHTML=viewStocks();
+  else if(currentView==="settings")root.innerHTML=viewSettings();
+  bindView();
+}
+function chipFor(kind,dueTxt){
+  if(dueTxt)return '<span class="chip alert">'+esc(dueTxt)+'</span>';
+  var map={class:"accent",work:"alert"};
+  return '<span class="chip '+(map[kind]||"")+'">'+esc(kind)+'</span>';
+}
+function viewDashboard(){
+  var today=todayStr(),w=LIVE.weather;
+  var wx;
+  if(w){
+    var strip=w.daily.filter(function(d){return d.date>=today}).slice(0,5);
+    wx='<div class="card"><div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start"><div>'
+      +'<p class="small muted" style="margin:0">Riverside, CA · California Baptist University</p>'
+      +'<p class="big-num">'+w.temp+'°F</p>'
+      +'<p class="small" style="margin:4px 0">'+esc(w.desc)+' · feels like '+w.feels+'°</p>'
+      +'<p class="tiny muted" style="margin:0">Humidity '+w.hum+'% · Wind '+w.wind+' mph · Updated '+timeAgo(LIVE.weatherAsOf)+'</p></div>'
+      +'<span style="font-size:46px" aria-hidden="true">'+wxIcon(w.code)+'</span></div>'
+      +'<div class="grid" style="grid-template-columns:repeat(5,1fr);margin-top:14px;border-top:1px solid var(--border);padding-top:10px">'
+      +strip.map(function(d){return '<div style="text-align:center"><p class="tiny muted" style="margin:0">'+fmtDay(d.date)+'</p><p style="margin:2px 0;font-size:18px;font-weight:700">'+d.high+'°</p><p class="tiny muted" style="margin:0">'+d.low+'°</p></div>'}).join("")
+      +'</div></div>';
+  } else {
+    wx=LIVE.status.weather==="loading"
+      ?'<div class="card"><p class="load-note" role="status">Loading live weather for Riverside…</p></div>'
+      :'<div class="card"><p class="small muted" style="margin:0 0 10px">Weather could not load (timed out or offline). Everything else on this page still works.</p><button type="button" class="btn small" data-retry="weather">Retry weather</button></div>';
+  }
+  var todaysEvents=S.events.filter(function(e){return e.dateStr===today}).sort(eventSort);
+  var tasks=allTasks();
+  var dueSoon=tasks.filter(function(t){return !t.completed&&t.dueDate&&daysUntil(t.dueDate)>=0&&daysUntil(t.dueDate)<=2});
+  var overdue=tasks.filter(function(t){return !t.completed&&t.dueDate&&daysUntil(t.dueDate)<0});
+  var nextExam=allExams().filter(function(e){return !e.completed&&daysUntil(e.date)>=0})[0];
+  var todayCards=[];
+  todaysEvents.forEach(function(e){todayCards.push('<button type="button" class="card flat stockcard" data-goto="calendar"><span class="rowitem">'+chipFor(e.kind)+'<span style="min-width:0"><span style="display:block;font-size:14px;font-weight:600">'+esc(e.title)+'</span><span class="tiny muted" style="display:block">'+(e.allDay?"All day":esc(e.startLabel)+(e.endLabel?" – "+esc(e.endLabel):""))+(e.kind==="work"&&!e.allDay&&shiftDuration(e.startLabel,e.endLabel)?" · "+shiftDuration(e.startLabel,e.endLabel):"")+(e.location?" · "+esc(e.location):"")+'</span></span></span></button>')});
+  overdue.concat(dueSoon).forEach(function(t){var d=daysUntil(t.dueDate);todayCards.push('<button type="button" class="card flat stockcard" data-goto="tasks"><span class="rowitem">'+chipFor(t.kind,d<0?"Overdue":d===0?"Due today":"Due soon")+'<span style="min-width:0"><span style="display:block;font-size:14px;font-weight:600">'+esc(t.course)+' · '+esc(t.title)+'</span><span class="tiny muted" style="display:block">'+esc(t.dueLabel)+'</span></span></span></button>')});
+  if(nextExam)todayCards.push('<button type="button" class="card flat stockcard" data-goto="exams"><span class="rowitem"><span class="chip">Exam</span><span style="min-width:0"><span style="display:block;font-size:14px;font-weight:600">'+esc(nextExam.course)+' · '+esc(nextExam.title)+'</span><span class="tiny muted" style="display:block">'+fmtDay(nextExam.date)+' · '+daysUntil(nextExam.date)+' days away</span></span></span></button>');
+  var todayHTML=todayCards.length?'<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">'+todayCards.join("")+'</div>'
+    :'<div class="card"><p class="small muted" style="margin:0">Nothing due and nothing scheduled today. Enjoy the breather.</p></div>';
+  var mkt='<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">'
+    +(WATCHLIST.map(function(s){var q=LIVE.quotes[s];if(!q)return '<div class="card flat"><p class="tiny muted" style="margin:0">'+s+'</p><p style="margin:2px 0;font-size:19px;font-weight:700">…</p></div>';
+      var cls=q.changePercent==null?"flat":q.changePercent<0?"down":"up";
+      return '<button type="button" class="card flat stockcard" data-stock="'+s+'"><span class="tiny" style="font-weight:700;letter-spacing:.05em;color:var(--dim)">'+s+'</span><span style="display:block;font-size:20px;font-weight:700">'+(q.price!=null?money(q.price):"—")+'</span><span class="small '+cls+'" style="font-weight:600">'+pct(q.changePercent)+' today</span>'+(q.unavailable?'<span class="tiny" style="display:block;color:var(--alert)">Quote unavailable</span>':"")+'</button>'}).join(""))
+    +'</div>'+(LIVE.quotesError?'<p class="small" style="color:var(--alert)">'+esc(LIVE.quotesError)+'</p>':"")+(LIVE.quotesAsOf&&!LIVE.quotesError?'<p class="tiny muted">Prices as of last close · updated '+timeAgo(LIVE.quotesAsOf)+'</p>':"");
+  var news;
+  if(LIVE.news&&LIVE.news.length){
+    news='<div class="card" style="padding:4px 16px"><div class="news-grid">'
+      +LIVE.news.map(function(n){return '<a href="'+esc(n.url)+'" target="_blank" rel="noreferrer" style="display:block;padding:12px 0;color:var(--text);text-decoration:none"><p style="margin:0;font-size:14px;font-weight:600;line-height:1.35">'+esc(n.title)+'</p><p class="tiny muted" style="margin:4px 0 0;line-height:1.4">'+esc(n.snippet)+'</p><p class="tiny" style="margin:4px 0 0;color:var(--accent);font-weight:600">'+esc(n.source)+'</p></a>'}).join("")
+      +'</div></div><p class="tiny muted">Headlines updated '+timeAgo(LIVE.newsAsOf)+'</p>';
+  } else {
+    news=LIVE.status.news==="loading"
+      ?'<div class="card"><p class="load-note" role="status">Loading top headlines…</p></div>'
+      :'<div class="card"><p class="small muted" style="margin:0 0 10px">Headlines could not load (timed out or offline). Everything else on this page still works.</p><button type="button" class="btn small" data-retry="news">Retry headlines</button></div>';
+  }
+  return '<div style="display:flex;flex-direction:column;gap:22px">'
+    +'<section aria-label="Weather">'+wx+'</section>'
+    +'<section aria-label="Today"><h2 class="section-title">Today</h2>'+todayHTML+'</section>'
+    +'<section aria-label="Market snapshot"><h2 class="section-title">Markets</h2>'+mkt+'</section>'
+    +'<section aria-label="Top news"><h2 class="section-title">Top news</h2>'+news+'</section>'
+    +'</div>';
+}
+function eventSort(a,b){
+  if(a.allDay&&!b.allDay)return -1;if(!a.allDay&&b.allDay)return 1;
+  return (parseTimeLabel(a.startLabel)||0)-(parseTimeLabel(b.startLabel)||0);
+}
+var KIND_LABEL={class:"Class",work:"Work",assignment:"Due",reading:"Reading",exam:"Exam",event:"Event"};
+function viewCalendar(){
+  var days=[];for(var i=0;i<14;i++)days.push(addDaysStr(todayStr(),i));
+  if(days.indexOf(calSelected)<0&&calSelected<days[0]){/* keep selection */}
+  var evs=S.events.filter(function(e){return e.dateStr===calSelected}).sort(eventSort);
+  var strip=days.map(function(d){var dt=new Date(d+"T12:00:00");return '<button type="button" class="daybtn'+(d===calSelected?" active":"")+'" data-day="'+d+'" aria-label="'+fmtDayLong(d)+'" aria-pressed="'+(d===calSelected)+'"><span class="dow">'+dt.toLocaleDateString("en-US",{weekday:"short"})+'</span><span class="dnum">'+dt.getDate()+'</span>'+(S.events.some(function(e){return e.dateStr===d})?'<span style="display:block;font-size:9px;line-height:1">●</span>':'<span style="display:block;font-size:9px;line-height:1">&nbsp;</span>')+'</button>'}).join("");
+  var list=evs.length?'<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr))">'
+    +evs.map(function(e){var dur=e.kind==="work"&&!e.allDay?shiftDuration(e.startLabel,e.endLabel):null;
+      return '<div class="card flat"><div class="rowitem">'+chipFor(e.kind)+'<div style="min-width:0;flex:1"><p style="margin:0;font-size:14px;font-weight:600">'+esc(e.title)+'</p><p class="tiny muted" style="margin:2px 0 0">'+(e.allDay?"All day":esc(e.startLabel)+(e.endLabel?" – "+esc(e.endLabel):""))+(dur?' · <b style="color:var(--text)">'+dur+'</b>':"")+(e.location?" · "+esc(e.location):"")+'</p></div>'
+      +'<span style="display:flex;gap:6px;flex-shrink:0"><button type="button" class="btn small" data-edit-ev="'+e.id+'">Edit</button><button type="button" class="btn small" data-del-ev="'+e.id+'" aria-label="Delete '+esc(e.title)+'">✕</button></span></div></div>'}).join("")+'</div>'
+    :'<div class="card"><p class="small muted" style="margin:0">Nothing scheduled this day.</p></div>';
+  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><h2 style="font-size:24px;font-weight:700">Calendar</h2><button type="button" class="btn primary small" id="addEventBtn">+ Add event</button></div>'
+    +'<div class="daystrip" role="list" aria-label="Choose a day">'+strip+'</div>'
+    +'<h3 class="small" style="font-weight:700;color:var(--dim);margin-bottom:8px">'+fmtDayLong(calSelected)+'</h3>'+list
+    +'<p class="tiny muted" style="margin-top:12px">Seeded with your Fall 2026 classes, chapel, known work shifts, and events. Add, edit, or delete anything — changes sync through Supabase.</p>';
+}
+function weekBounds(){
+  var t=new Date(todayStr()+"T12:00:00");var dow=(t.getDay()+6)%7; /* Mon=0 */
+  var mon=addDaysStr(todayStr(),-dow),sun=addDaysStr(mon,6);
+  return{mon:mon,sun:sun};
+}
+function taskRowHTML(t){
+  var overdue=!t.completed&&t.dueDate&&daysUntil(t.dueDate)<0;
+  return '<div class="card flat"><div class="rowitem">'
+    +'<input type="checkbox" class="taskbox" data-task-toggle="'+t.id+'" '+(t.completed?"checked":"")+' aria-label="Mark '+esc(t.title)+' complete">'
+    +'<button type="button" data-task-open="'+t.id+'" style="flex:1;min-width:0;text-align:left;background:none;border:none;padding:0;color:inherit">'
+    +'<span class="'+(t.completed?"done-text":"")+'" style="display:block;font-size:14px;font-weight:600">'+esc(t.course)+' · '+esc(t.title)+'</span>'
+    +'<span class="tiny muted" style="display:block">'+esc(t.dueLabel)+(t.kind==="reading"?" · Reading":"")+(overdue?' · <span style="color:var(--alert);font-weight:700">Overdue</span>':"")+'</span></button>'
+    +'</div></div>';
+}
+function viewTasks(){
+  var tasks=allTasks(),wb=weekBounds();
+  var tabs=[["week","This Week"],["semester","Semester"],["plan","Weekly Plan"]];
+  var head='<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><h2 style="font-size:24px;font-weight:700">Tasks</h2><button type="button" class="btn primary small" id="addTaskBtn">+ Add task</button></div>'
+    +'<div class="tabs" role="tablist">'+tabs.map(function(x){return '<button type="button" class="tab'+(taskTab===x[0]?" active":"")+'" data-tab="'+x[0]+'" role="tab" aria-selected="'+(taskTab===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>';
+  var body="";
+  if(taskTab==="week"){
+    var list=tasks.filter(function(t){return t.dueDate&&((daysUntil(t.dueDate)<0&&!t.completed)||(t.dueDate>=wb.mon&&t.dueDate<=wb.sun))});
+    var doneCount=list.filter(function(t){return t.completed}).length;
+    body='<p class="small muted">'+fmtDay(wb.mon)+' – '+fmtDay(wb.sun)+' · '+doneCount+' of '+list.length+' done (including overdue still open)</p>'
+      +(list.length?'<div style="display:flex;flex-direction:column;gap:8px">'+list.map(taskRowHTML).join("")+'</div>':'<div class="card"><p class="small muted" style="margin:0">Nothing due this week.</p></div>');
+  } else if(taskTab==="semester"){
+    var open=tasks.filter(function(t){return !t.completed}),done=tasks.filter(function(t){return t.completed});
+    body='<p class="small muted">'+open.length+' open · '+done.length+' checked off this semester. One checklist — a check here shows in every tab.</p>'
+      +'<div style="display:flex;flex-direction:column;gap:8px">'+open.map(taskRowHTML).join("")+'</div>'
+      +(done.length?'<h3 class="small" style="font-weight:700;color:var(--dim);margin:18px 0 8px">Completed</h3><div style="display:flex;flex-direction:column;gap:8px">'+done.map(taskRowHTML).join("")+'</div>':"");
+  } else {
+    var names=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    var cols=names.map(function(name,i){
+      var date=addDaysStr(wb.mon,i);
+      var dayTasks=tasks.filter(function(t){return !t.completed&&t.dueDate===date});
+      return '<div class="card flat"><p style="margin:0 0 2px;font-weight:700;font-size:14px">'+name+'</p><p class="tiny muted" style="margin:0 0 8px">'+fmtDay(date)+(date===todayStr()?" · Today":"")+'</p>'
+        +(dayTasks.length?dayTasks.map(function(t){return '<div style="margin-bottom:8px"><label style="display:flex;gap:8px;align-items:flex-start;font-size:13px"><input type="checkbox" class="taskbox" style="width:18px;height:18px" data-task-toggle="'+t.id+'"><span><b>'+esc(t.course)+'</b> · '+esc(t.title)+'</span></label></div>'}).join(""):'<p class="tiny muted" style="margin:0">—</p>')
+        +'</div>';
+    }).join("");
+    var later=tasks.filter(function(t){return !t.completed&&t.dueDate&&t.dueDate>wb.sun});
+    var overdueP=tasks.filter(function(t){return !t.completed&&t.dueDate&&daysUntil(t.dueDate)<0});
+    body='<p class="small muted">Suggested week at a glance — open items placed on their due days. Same checklist as the other tabs.</p>'
+      +(overdueP.length?'<div class="card flat" style="margin-bottom:12px"><p style="margin:0 0 6px;font-weight:700;color:var(--alert);font-size:14px">Overdue — catch up first</p>'+overdueP.map(function(t){return '<div style="margin-bottom:6px"><label style="display:flex;gap:8px;align-items:flex-start;font-size:13px"><input type="checkbox" class="taskbox" style="width:18px;height:18px" data-task-toggle="'+t.id+'"><span><b>'+esc(t.course)+'</b> · '+esc(t.title)+' <span class="muted">('+esc(t.dueLabel)+')</span></span></label></div>'}).join("")+'</div>':"")
+      +'<div class="plan-grid">'+cols+'</div>'
+      +(later.length?'<h3 class="small" style="font-weight:700;color:var(--dim);margin:18px 0 8px">Coming up after this week ('+later.length+')</h3><div style="display:flex;flex-direction:column;gap:8px">'+later.slice(0,10).map(taskRowHTML).join("")+'</div>':"");
+  }
+  return head+body;
+}
+</script>
+
+<script>
+"use strict";
+function viewEmail(){
+  return '<h2 style="font-size:24px;font-weight:700;margin-bottom:12px">Email</h2>'
+  +'<div class="card" style="max-width:720px"><div style="font-size:34px" aria-hidden="true">✉️</div>'
+  +'<h3 style="font-size:19px;font-weight:700;margin:8px 0 6px">Gmail connects in the next version</h3>'
+  +'<p class="small" style="line-height:1.6">This public build can\'t use the Gmail connection that lives inside Muse, so the inbox isn\'t shown here yet. The planned hookup is <b>Sign in with Google</b> through Supabase Auth, asking Google for <b>Gmail read-only</b> access only — the site would be able to read and triage important mail, never send, delete, or change anything.</p>'
+  +'<p class="small muted" style="line-height:1.6">When it lands, important and urgent mail will appear here with the same rules as your current planner: extreme-priority items stay pinned until you check them off, and everything else clears after 24 hours.</p>'
+  +'<div class="divider" style="margin:14px 0"></div>'
+  +'<p class="small muted" style="margin:0">Until then, your Muse planner still shows your inbox, and the morning email digest keeps running.</p></div>';
+}
+function viewExams(){
+  var exams=allExams();
+  var upcoming=exams.filter(function(e){return !e.completed}),past=exams.filter(function(e){return e.completed});
+  function examCard(e){
+    var d=daysUntil(e.date);
+    var badge=e.completed?'<span class="chip">Done</span>':d<0?'<span class="chip alert">Date passed</span>':d===0?'<span class="chip alert">Today</span>':d===1?'<span class="chip warn">Tomorrow</span>':'<span class="chip accent">'+d+' days away</span>';
+    var doneStudy=e.study.filter(function(s){return s.completed}).length;
+    var prog=e.study.length?'<div class="progress" style="margin:10px 0 4px"><div style="width:'+Math.round(doneStudy/e.study.length*100)+'%"></div></div><p class="tiny muted" style="margin:0">Study plan: '+doneStudy+' of '+e.study.length+' done</p>':"";
+    return '<div class="card" id="exam-'+e.id+'" '+(examFocusId===e.id?'style="outline:2px solid var(--accent)"':"")+'><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div style="min-width:0">'
+      +'<p style="margin:0"><b>'+esc(e.course)+'</b> · <span style="font-weight:600">'+esc(e.title)+'</span></p>'
+      +'<p class="small muted" style="margin:4px 0 0">'+fmtDay(e.date)+' · '+esc(e.time)+(e.location&&e.location!=="—"?" · "+esc(e.location):"")+'</p></div>'+badge+'</div>'
+      +'<p class="small" style="margin:10px 0 0;line-height:1.55">'+esc(e.description)+'</p>'+prog
+      +(e.study.length?'<div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">'+e.study.map(function(s){return '<label style="display:flex;gap:9px;align-items:flex-start;font-size:14px"><input type="checkbox" class="taskbox" style="width:19px;height:19px" data-study-toggle="'+s.id+'" '+(s.completed?"checked":"")+'><span class="'+(s.completed?"done-text":"")+'">'+esc(s.text)+'</span></label>'}).join("")+'</div>':"")
+      +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+      +'<button type="button" class="btn small" data-exam-pin="'+e.id+'" aria-pressed="'+e.pinned+'">'+(e.pinned?"📌 Pinned":"Pin study plan")+'</button>'
+      +'<button type="button" class="btn small" data-exam-toggle="'+e.id+'">'+(e.completed?"Mark not done":"Mark exam done")+'</button>'
+      +'</div></div>';
+  }
+  return '<h2 style="font-size:24px;font-weight:700;margin-bottom:4px">Exams</h2>'
+   +'<p class="small muted" style="margin-bottom:14px">'+upcoming.length+' upcoming · '+past.length+' completed · Fall 2026. Study-plan check-offs sync across your devices.</p>'
+   +'<div style="display:flex;flex-direction:column;gap:12px;max-width:860px">'+upcoming.map(examCard).join("")+'</div>'
+   +(past.length?'<h3 class="small" style="font-weight:700;color:var(--dim);margin:20px 0 8px">Completed</h3><div style="display:flex;flex-direction:column;gap:12px;max-width:860px">'+past.map(examCard).join("")+'</div>':"");
+}
+function holdingRow(h){
+  var q=LIVE.quotes[h.symbol];
+  var price=q?q.price:null;
+  var val=price!=null?price*h.shares:null,cost=h.buyPrice*h.shares;
+  var gain=val!=null?val-cost:null,gainPct=gain!=null&&cost>0?gain/cost*100:null;
+  var cls=gain==null?"flat":gain<0?"down":"up";
+  return '<div class="card flat"><div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><div><p style="margin:0"><b>'+esc(h.symbol)+'</b> <span class="muted small">'+esc(h.name||"")+'</span></p>'
+   +'<p class="tiny muted" style="margin:3px 0 0">'+h.shares+' shares · bought '+money(h.buyPrice)+' on '+esc(h.buyDate)+'</p></div>'
+   +'<div style="text-align:right"><p style="margin:0;font-weight:700">'+(val!=null?money(val):"—")+'</p><p class="small '+cls+'" style="margin:2px 0 0;font-weight:600">'+(gain!=null?(gain>=0?"+":"")+money(gain).replace("$-","-$")+" ("+pct(gainPct)+")":"price unavailable")+'</p></div></div>'
+   +'<button type="button" class="btn small" data-del-holding="'+h.id+'" style="margin-top:8px">Remove</button></div>';
+}
+/* Insights: standout-stock alerts computed from the same LIVE.quotes feed
+   as the watchlist — biggest mover, top gainers/losers, sharp moves (>=2%),
+   prices hugging their 52-week range, and today's $ move on holdings. */
+function stockInsightsHTML(){
+  var held={};S.holdings.forEach(function(h){held[h.symbol]=h});
+  var pool=[],seen={};
+  WATCHLIST.concat(S.holdings.map(function(h){return h.symbol})).forEach(function(s){
+    if(!s||seen[s])return;seen[s]=1;
+    var q=LIVE.quotes[s];
+    if(q&&!q.unavailable&&q.price!=null&&q.changePercent!=null)pool.push({sym:s,q:q,held:held[s]||null});
+  });
+  if(!pool.length){
+    if(LIVE.status.quotes==="error"||LIVE.quotesError)return '<div class="card"><h3 style="font-size:17px;font-weight:700">Insights need live prices</h3><p class="small muted">Standout-stock alerts are computed from the live quotes, and they couldn\'t load right now.</p><button type="button" class="btn small" data-retry="quotes" style="margin-top:8px">Retry prices</button></div>';
+    return '<div class="card"><p class="small muted" style="margin:0">Loading live quotes — standout movers will appear here as soon as prices land.</p></div>';
+  }
+  var gainers=pool.filter(function(x){return x.q.changePercent>0}).sort(function(a,b){return b.q.changePercent-a.q.changePercent});
+  var losers=pool.filter(function(x){return x.q.changePercent<0}).sort(function(a,b){return a.q.changePercent-b.q.changePercent});
+  var mover=pool.slice().sort(function(a,b){return Math.abs(b.q.changePercent)-Math.abs(a.q.changePercent)})[0];
+  function dayNote(x){
+    if(!x.held||x.q.change==null)return "";
+    var d=x.q.change*x.held.shares;
+    return 'Your holding: '+(d>=0?"+":"−")+money(Math.abs(d))+' today · '+x.held.shares+' shares';
+  }
+  function statCard(label,x){
+    if(!x)return '<div class="card flat"><span class="tiny" style="font-weight:700;letter-spacing:.05em;color:var(--dim)">'+label+'</span><span style="display:block;font-size:15px;font-weight:600;margin-top:6px" class="muted">Nothing qualifies today</span></div>';
+    var cls=x.q.changePercent<0?"down":"up";
+    return '<button type="button" class="card flat stockcard" data-stock="'+x.sym+'" aria-label="Open '+x.sym+'"><span class="tiny" style="font-weight:700;letter-spacing:.05em;color:var(--dim)">'+label+'</span><span style="display:block;font-size:20px;font-weight:700;margin-top:4px">'+x.sym+(x.held?' <span class="chip" style="vertical-align:2px">Held</span>':"")+'</span><span class="tiny muted" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(x.q.name||WATCH_NAMES[x.sym]||"")+'</span><span class="small '+cls+'" style="font-weight:700;display:block;margin-top:2px">'+pct(x.q.changePercent)+' today · '+money(x.q.price)+'</span>'+(dayNote(x)?'<span class="tiny muted" style="display:block;margin-top:3px">'+esc(dayNote(x))+'</span>':"")+'</button>';
+  }
+  var alerts=[];
+  pool.forEach(function(x){
+    var cp=x.q.changePercent;
+    if(Math.abs(cp)>=2)alerts.push({x:x,rank:Math.abs(cp),text:x.sym+' is '+(cp>0?"up ":"down ")+Math.abs(cp).toFixed(2)+'% today'+(cp>0?" — a sharp move up.":" — a sharp move down.")});
+    if(x.q.week52High&&x.q.price>=0.97*x.q.week52High)alerts.push({x:x,rank:Math.abs(cp)+0.5,text:x.sym+' is trading near its 52-week high of '+money(x.q.week52High)+' (now '+money(x.q.price)+').'});
+    else if(x.q.week52Low&&x.q.price<=1.03*x.q.week52Low)alerts.push({x:x,rank:Math.abs(cp)+0.5,text:x.sym+' is trading near its 52-week low of '+money(x.q.week52Low)+' (now '+money(x.q.price)+').'});
+  });
+  alerts.sort(function(a,b){return b.rank-a.rank});
+  alerts=alerts.slice(0,6);
+  function moverRow(x){
+    var cls=x.q.changePercent<0?"down":"up";
+    return '<button type="button" class="card flat stockcard" data-stock="'+x.sym+'" aria-label="Open '+x.sym+'"><span style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span style="min-width:0"><b>'+x.sym+'</b>'+(x.held?' <span class="chip">Held</span>':"")+' <span class="muted small" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(x.q.name||WATCH_NAMES[x.sym]||"")+'</span></span><span style="text-align:right;flex-shrink:0"><b>'+money(x.q.price)+'</b> <span class="'+cls+'" style="font-weight:700">'+pct(x.q.changePercent)+'</span></span></span></button>';
+  }
+  function moverList(title,list){
+    return '<div><h4 style="margin:0 0 8px;font-size:15px">'+title+'</h4>'+(list.length?'<div style="display:flex;flex-direction:column;gap:8px">'+list.slice(0,4).map(moverRow).join("")+'</div>':'<p class="small muted" style="margin:0">None today.</p>')+'</div>';
+  }
+  var heldPool=pool.filter(function(x){return x.held});
+  var heldHTML="";
+  if(heldPool.length){
+    heldHTML='<h3 class="section-title" style="margin-top:22px">Your holdings today</h3><div style="display:flex;flex-direction:column;gap:8px;max-width:760px">'
+     +heldPool.slice().sort(function(a,b){return Math.abs(b.q.changePercent)-Math.abs(a.q.changePercent)}).map(function(x){
+        var d=x.q.change!=null?x.q.change*x.held.shares:null;
+        var cls=x.q.changePercent<0?"down":"up";
+        return '<button type="button" class="card flat stockcard" data-stock="'+x.sym+'" aria-label="Open '+x.sym+'"><span style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><span><b>'+x.sym+'</b> <span class="muted small">'+x.held.shares+' shares</span></span><span style="text-align:right;flex-shrink:0"><span class="'+cls+'" style="font-weight:700">'+pct(x.q.changePercent)+'</span>'+(d!=null?' <span class="'+(d<0?"down":"up")+'" style="font-weight:600">('+(d>=0?"+":"−")+money(Math.abs(d))+')</span>':"")+'</span></span></button>';
+      }).join("")+'</div>';
+  }
+  return '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">'
+   +statCard("Biggest mover",mover)+statCard("Top gainer",gainers[0]||null)+statCard("Top loser",losers[0]||null)
+   +'</div>'
+   +'<h3 class="section-title" style="margin-top:22px">Standout alerts</h3>'
+   +(alerts.length?'<div style="display:flex;flex-direction:column;gap:8px;max-width:760px">'+alerts.map(function(a){
+      var cls=a.x.q.changePercent<0?"down":"up";
+      return '<button type="button" class="card flat stockcard" data-stock="'+a.x.sym+'" aria-label="Open '+a.x.sym+'"><span class="rowitem"><span class="chip '+(a.x.q.changePercent<0?"alert":"")+'">'+pct(a.x.q.changePercent)+'</span><span style="min-width:0"><span style="display:block;font-size:14px;font-weight:600">'+esc(a.text)+'</span>'+(dayNote(a.x)?'<span class="tiny muted" style="display:block">'+esc(dayNote(a.x))+'</span>':"")+'</span></span></button>';
+    }).join("")+'</div>'
+    :'<p class="small muted">No standout moves right now — nothing in your watchlist or holdings has moved 2% or more today, and nothing is hugging its 52-week range.</p>')
+   +'<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:22px">'+moverList("Top gainers",gainers)+moverList("Top losers",losers)+'</div>'
+   +heldHTML
+   +(LIVE.quotesAsOf?'<p class="tiny muted" style="margin-top:14px">Computed from the same live CNBC quotes as the watchlist · updated '+timeAgo(LIVE.quotesAsOf)+'</p>':"");
+}
+function viewStocks(){
+  var sel=currentStock?LIVE.quotes[currentStock]:null;
+  var cards='<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">'
+   +WATCHLIST.map(function(s){var q=LIVE.quotes[s];var cls=!q||q.changePercent==null?"flat":q.changePercent<0?"down":"up";
+     return '<button type="button" class="card flat stockcard" data-stock="'+s+'" aria-label="Open '+s+'"><span class="tiny" style="font-weight:700;letter-spacing:.05em;color:var(--dim)">'+s+'</span><span class="tiny muted" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(WATCH_NAMES[s])+'</span><span style="display:block;font-size:22px;font-weight:700;margin-top:4px">'+(q&&q.price!=null?money(q.price):"—")+'</span><span class="small '+cls+'" style="font-weight:600">'+(q?(q.unavailable?"—":pct(q.changePercent)+" today"):"Loading…")+'</span>'+(q&&q.unavailable?'<span class="tiny" style="display:block;color:var(--alert);margin-top:4px">'+esc(q.error||"Quote unavailable")+'</span>':"")+'<span style="display:block;margin-top:6px">'+(q?sparklineSVG(q.history,150,34):"")+'</span></button>'}).join("")+'</div>';
+  var detail="";
+  if(currentStock){
+    var watchBtn=isInWatchlist(currentStock)?'<span class="chip" style="margin-left:8px;vertical-align:3px">In your watchlist</span>':'<button type="button" class="btn small primary" data-add-watch="'+esc(currentStock)+'" style="margin-left:8px;vertical-align:3px">+ Add to watchlist</button>';
+    if(!sel||sel.unavailable){
+      detail='<div class="card" style="margin-top:14px"><h3 style="font-size:19px;font-weight:700">'+esc(currentStock)+' <span class="muted" style="font-weight:500;font-size:14px">'+esc(WATCH_NAMES[currentStock]||"")+'</span>'+watchBtn+'</h3><p class="small muted">'+esc(sel&&sel.error?sel.error:"Live price is unavailable for this symbol right now.")+'</p><button type="button" class="btn small" data-retry="quotes" style="margin-top:8px">Retry prices</button></div>';
+    } else {
+      var cls=sel.changePercent==null?"flat":sel.changePercent<0?"down":"up";
+      detail='<div class="card" style="margin-top:14px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h3 style="font-size:19px;font-weight:700">'+esc(sel.symbol)+' <span class="muted" style="font-weight:500;font-size:14px">'+esc(sel.name)+'</span>'+watchBtn+'</h3>'
+       +'<p style="margin:4px 0 0"><span style="font-size:30px;font-weight:700">'+money(sel.price)+'</span> <span class="'+cls+'" style="font-weight:700">'+(sel.change!=null?(sel.change>=0?"+":"")+money(sel.change).replace("$-","-$")+" ":"")+pct(sel.changePercent)+'</span></p>'
+       +'<p class="tiny muted" style="margin:2px 0 0">As of '+esc(sel.asOf||"")+' · YTD <span class="'+(sel.ytdPercent==null?"":sel.ytdPercent<0?"down":"up")+'" style="font-weight:700">'+pct(sel.ytdPercent)+'</span></p></div></div>'
+       +((sel.history&&sel.history.length>=2)?'<div style="margin-top:10px">'+chartSVG(sel.history)+'</div>':'<p class="tiny muted" style="margin-top:10px">Price chart is not available for this symbol right now — the live quote and stats here are current.</p>')
+       +'<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 24px;margin-top:8px">'
+       +'<div class="kv"><span class="muted">Open</span><b>'+money(sel.open)+'</b></div>'
+       +'<div class="kv"><span class="muted">Day high</span><b>'+money(sel.high)+'</b></div>'
+       +'<div class="kv"><span class="muted">Day low</span><b>'+money(sel.low)+'</b></div>'
+       +'<div class="kv"><span class="muted">52-week high</span><b>'+money(sel.week52High)+'</b></div>'
+       +'<div class="kv"><span class="muted">52-week low</span><b>'+money(sel.week52Low)+'</b></div>'
+       +'</div></div>';
+    }
+  }
+  var holds=S.holdings;
+  var totCost=0,totVal=0,anyPrice=false;
+  holds.forEach(function(h){totCost+=h.shares*h.buyPrice;var q=LIVE.quotes[h.symbol];if(q&&q.price!=null){anyPrice=true;totVal+=q.price*h.shares}});
+  var holdHTML='<h3 class="section-title" style="margin-top:22px">Holdings</h3>'
+   +(holds.length?'<p class="small muted">Total value <b style="color:var(--text)">'+(anyPrice?money(totVal):"—")+'</b> · cost '+money(totCost)+(anyPrice?' · overall <b class="'+(totVal-totCost<0?"down":"up")+'">'+pct((totVal-totCost)/totCost*100)+'</b>':"")+'</p><div style="display:flex;flex-direction:column;gap:8px;max-width:760px">'+holds.map(holdingRow).join("")+'</div>'
+     :'<p class="small muted">No holdings recorded yet. Add a position below and it will track against live prices.</p>')
+   +'<form id="holdingForm" class="card" style="max-width:760px;margin-top:12px"><h4 style="margin:0 0 4px;font-size:15px">Add a holding</h4><div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">'
+   +'<div><label class="flabel" for="hSym">Symbol</label><input class="field" id="hSym" required maxlength="10" placeholder="NVDA"></div>'
+   +'<div><label class="flabel" for="hShares">Shares</label><input class="field" id="hShares" required type="number" step="any" min="0" placeholder="10"></div>'
+   +'<div><label class="flabel" for="hPrice">Buy price</label><input class="field" id="hPrice" required type="number" step="any" min="0" placeholder="150.00"></div>'
+   +'<div><label class="flabel" for="hDate">Buy date</label><input class="field" id="hDate" required type="date" value="'+todayStr()+'"></div></div>'
+   +'<button type="submit" class="btn primary" style="margin-top:14px">Add holding</button></form>';
+  var stockTabs='<div class="tabs" role="tablist" aria-label="Stocks views">'
+   +[["watchlist","Watchlist"],["insights","Insights"]].map(function(x){return '<button type="button" class="tab'+(stockTab===x[0]?" active":"")+'" data-stocktab="'+x[0]+'" role="tab" aria-selected="'+(stockTab===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>';
+  return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px"><h2 style="font-size:24px;font-weight:700">Stocks</h2><button type="button" class="btn small" id="refreshStocks">Refresh prices</button></div>'
+   +(LIVE.quotesError?'<p class="small" style="color:var(--alert)">'+esc(LIVE.quotesError)+'</p>':"")
+   +stockTabs
+   +(stockTab==="insights"?stockInsightsHTML()
+     :'<div style="max-width:680px;margin-bottom:14px"><form id="stockSearch" style="display:flex;gap:8px"><input class="field" id="stockQ" placeholder="Search by company name or ticker — Apple, Nvidia, SpaceX, AAPL…" aria-label="Search by company name or ticker" maxlength="40" autocomplete="off"><button type="submit" class="btn primary">Search</button></form><div id="stockSearchResults" aria-live="polite"></div><p class="tiny muted" style="margin:6px 0 0">Type a company name or a ticker. Results show the ticker — tap View to open the stock, or + Watchlist to add it.</p></div>'
+      +cards+detail+holdHTML)
+   +'<p class="tiny muted" style="margin-top:14px">Quotes load live from the CNBC quote feed in one quick request. SPCX is SpaceX, public since its June 12, 2026 IPO at $135.</p>';
+}
+function viewSettings(){
+  var configured=supaConfigured();
+  return '<h2 style="font-size:24px;font-weight:700;margin-bottom:4px">Settings</h2>'
+  +'<p class="small muted" style="margin-bottom:14px;max-width:680px">Keys are asked for once per device and stored only in this browser (localStorage) — never in the site\'s code, never sent anywhere except the service they belong to.</p>'
+  +'<div class="card" style="max-width:680px"><h3 style="font-size:17px;font-weight:700">Supabase sync</h3>'
+  +'<p class="small muted">Syncs tasks, study plans, holdings, and calendar across your devices through your <b>planner_state</b> table (one row, id <b>main</b>, with a <b>state</b> jsonb column).</p>'
+  +'<p class="small" role="status"><span class="statusdot '+(syncState.mode==="ok"?"ok":syncState.mode==="error"?"err":syncState.mode==="busy"?"busy":"")+'"></span> '+esc(syncState.msg)+(syncState.lastOk?' · last synced '+timeAgo(syncState.lastOk):"")+'</p>'
+  +(syncState.error?'<p class="small" style="color:var(--alert)">Detail: '+esc(syncState.error)+'</p>':"")
+  +'<label class="flabel" for="setUrl">Supabase Project URL</label><input class="field" id="setUrl" type="url" placeholder="https://your-project.supabase.co" value="'+esc(CFG.url||"https://qrpcikwpxrtvaevucmjg.supabase.co")+'">'
+  +'<label class="flabel" for="setKey">Anon / publishable key</label><input class="field" id="setKey" type="password" placeholder="Paste the anon public or publishable key" value="'+esc(CFG.key)+'" autocomplete="off">'
+  +'<p class="tiny muted">Find it in Supabase → Project Settings → API. Use the <b>anon public</b> key (or the newer <b>publishable</b> key) — never the service_role key or your database password.</p>'
+  +'<h3 style="font-size:17px;font-weight:700;margin-top:22px">Jarvis voice (Gemini Live)</h3>'
+  +'<label class="flabel" for="setGem">Gemini API key for Jarvis</label><input class="field" id="setGem" type="password" placeholder="Paste your Gemini API key (aistudio.google.com/apikey)" value="'+esc(CFG.gemini)+'" autocomplete="off">'
+  +'<p class="tiny muted">Used only by Jarvis, straight from this browser to Google\'s Gemini Live API. Free-tier limits apply.</p>'
+  +'<h3 style="font-size:17px;font-weight:700;margin-top:22px">Jarvis wake word</h3>'
+  +'<p class="small muted" style="line-height:1.6">When wake-word listening is on, Jarvis listens in the background for <b>“Hey Jarvis”</b> and opens Jarvis as a translucent overlay of glowing rings right over the page you\'re on — no tap, no new tab, and the page stays visible behind him. It uses your browser\'s speech recognition, works best in Chrome, and stops while a live Jarvis conversation is running.</p>'
+  +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" class="btn" id="wakeToggleSettings">Wake word: '+(typeof WAKE!=="undefined"&&WAKE.enabled?"On":"Off")+'</button><span class="small muted" id="wakeSettingsNote">'+(typeof WAKE!=="undefined"&&WAKE.error?esc(WAKE.error):(typeof WAKE!=="undefined"&&WAKE.enabled?"Listening for “Hey Jarvis”…":"Off"))+'</span></div>'
+  +'<div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button type="button" class="btn primary" id="saveSettings">Save &amp; connect</button>'
+  +(CFG.gemini?'<button type="button" class="btn" id="testGemini">Test Gemini key</button>':"")
+  +(configured||CFG.gemini?'<button type="button" class="btn" id="clearSettings">Remove keys from this browser</button>':"")
+  +'</div><p class="small" id="settingsMsg" role="status" style="margin-top:10px"></p></div>'
+  +'<div class="card" style="max-width:680px;margin-top:14px"><h3 style="font-size:17px;font-weight:700">About this build</h3>'
+  +'<p class="small muted" style="line-height:1.6;margin-bottom:0">Public v1: Dashboard, Calendar, Tasks, Exams, and Stocks with live weather, headlines, and prices. Calendar entries are manual (seeded with your Fall 2026 schedule and known shifts). Email and Google Calendar sync arrive with Google sign-in in a later version. Because the site connects with your publishable key, treat this page\'s link like a private one — anyone holding it could read or edit the planner data.</p></div>';
+}
+</script>
+
+<script>
+"use strict";
+/* =============== modals & bindings =============== */
+function openModal(html){$("modalRoot").innerHTML='<div class="modal-back" id="modalBack"><div class="modal" role="dialog">'+html+'</div></div>';
+  $("modalBack").addEventListener("click",function(e){if(e.target===$("modalBack"))closeModal()});}
+function closeModal(){$("modalRoot").innerHTML=""}
+function fmtTimeInputToLabel(v){if(!v)return"";var p=v.split(":"),h=Number(p[0]),m=p[1],ap=h>=12?"PM":"AM";h=h%12;if(h===0)h=12;return h+":"+m+" "+ap}
+function labelToTimeInput(l){var mins=parseTimeLabel(l);if(mins==null)return"";var h=Math.floor(mins/60),m=mins%60;return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")}
+function eventFormHTML(e){
+  e=e||{title:"",dateStr:calSelected,startLabel:"",endLabel:"",location:"",kind:"event",allDay:false};
+  var kinds=["class","work","event","assignment","reading","exam"];
+  return '<h3 style="font-size:19px;font-weight:700">'+(e.id?"Edit event":"Add event")+'</h3>'
+  +'<label class="flabel" for="evTitle">Title</label><input class="field" id="evTitle" value="'+esc(e.title)+'" placeholder="e.g. Work shift, study session…">'
+  +'<label class="flabel" for="evDate">Date</label><input class="field" id="evDate" type="date" value="'+esc(e.dateStr)+'">'
+  +'<label class="flabel" for="evKind">Type</label><select class="field" id="evKind">'+kinds.map(function(k){return '<option value="'+k+'"'+(e.kind===k?" selected":"")+'>'+KIND_LABEL[k]+'</option>'}).join("")+'</select>'
+  +'<label style="display:flex;gap:8px;align-items:center;margin-top:14px;font-size:14px"><input type="checkbox" id="evAllDay" '+(e.allDay?"checked":"")+' style="width:18px;height:18px;accent-color:var(--accent-strong)"> All day</label>'
+  +'<div class="grid" style="grid-template-columns:1fr 1fr"><div><label class="flabel" for="evStart">Start</label><input class="field" id="evStart" type="time" value="'+labelToTimeInput(e.startLabel)+'"></div>'
+  +'<div><label class="flabel" for="evEnd">End</label><input class="field" id="evEnd" type="time" value="'+labelToTimeInput(e.endLabel)+'"></div></div>'
+  +'<p class="tiny muted" id="evDur"></p>'
+  +'<label class="flabel" for="evLoc">Location</label><input class="field" id="evLoc" value="'+esc(e.location)+'" placeholder="Optional">'
+  +'<div style="display:flex;gap:8px;margin-top:18px"><button type="button" class="btn primary" id="evSave" style="flex:1">Save event</button><button type="button" class="btn" id="evCancel">Cancel</button></div>';
+}
+function openEventForm(e){
+  openModal(eventFormHTML(e));
+  function updDur(){var d=shiftDuration(fmtTimeInputToLabel($("evStart").value),fmtTimeInputToLabel($("evEnd").value));$("evDur").textContent=($("evKind").value==="work"&&d)?"Shift length: "+d:""}
+  $("evStart").addEventListener("change",updDur);$("evEnd").addEventListener("change",updDur);$("evKind").addEventListener("change",updDur);updDur();
+  $("evCancel").addEventListener("click",closeModal);
+  $("evSave").addEventListener("click",function(){
+    var title=$("evTitle").value.trim();if(!title){toast("Give the event a title first");return}
+    var allDay=$("evAllDay").checked;
+    var rec={id:e&&e.id?e.id:uid("ev"),title:title,dateStr:$("evDate").value||todayStr(),kind:$("evKind").value,allDay:allDay,
+      startLabel:allDay?"":fmtTimeInputToLabel($("evStart").value),endLabel:allDay?"":fmtTimeInputToLabel($("evEnd").value),location:$("evLoc").value.trim()};
+    if(e&&e.id){var i=S.events.findIndex(function(x){return x.id===e.id});if(i>=0)S.events[i]=rec}
+    else S.events.push(rec);
+    calSelected=rec.dateStr;touch();closeModal();renderTickers();renderView();toast("Event saved");
+  });
+}
+function taskFormHTML(){
+  return '<h3 style="font-size:19px;font-weight:700">Add task</h3>'
+  +'<label class="flabel" for="tkTitle">Title</label><input class="field" id="tkTitle" placeholder="What needs doing?">'
+  +'<label class="flabel" for="tkCourse">Course / label</label><input class="field" id="tkCourse" placeholder="e.g. EGR 241 or Personal">'
+  +'<label class="flabel" for="tkKind">Type</label><select class="field" id="tkKind"><option value="assignment">Assignment</option><option value="reading">Reading</option></select>'
+  +'<label class="flabel" for="tkDate">Due date</label><input class="field" id="tkDate" type="date" value="'+todayStr()+'">'
+  +'<label class="flabel" for="tkDesc">Notes</label><textarea class="field" id="tkDesc" rows="3" placeholder="Optional details"></textarea>'
+  +'<div style="display:flex;gap:8px;margin-top:18px"><button type="button" class="btn primary" id="tkSave" style="flex:1">Add task</button><button type="button" class="btn" id="tkCancel">Cancel</button></div>';
+}
+function openTaskForm(){
+  openModal(taskFormHTML());
+  $("tkCancel").addEventListener("click",closeModal);
+  $("tkSave").addEventListener("click",function(){
+    var title=$("tkTitle").value.trim();if(!title){toast("Give the task a title first");return}
+    var date=$("tkDate").value||todayStr();
+    S.customTasks.push({id:uid("ct"),course:$("tkCourse").value.trim()||"Personal",title:title,kind:$("tkKind").value,dueDate:date,dueLabel:fmtDay(date),description:$("tkDesc").value.trim()});
+    touch();closeModal();renderView();toast("Task added — it appears in all three tabs");
+  });
+}
+function openTaskDetail(t){
+  openModal('<div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 style="font-size:19px;font-weight:700;min-width:0">'+esc(t.course)+' · '+esc(t.title)+'</h3><button type="button" class="btn small" id="tdClose">✕</button></div>'
+   +'<p class="small muted">Due: '+esc(t.dueLabel)+' · '+(t.kind==="reading"?"Reading":"Assignment")+(t.completed?" · Completed":"")+'</p>'
+   +'<p class="small" style="line-height:1.6">'+esc(t.description||"No extra details on file for this item.")+'</p>'
+   +'<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap"><button type="button" class="btn primary" id="tdToggle">'+(t.completed?"Mark not done":"Mark done")+'</button>'
+   +(t.custom?'<button type="button" class="btn danger" id="tdDelete">Delete task</button>':'<button type="button" class="btn" id="tdHide">Remove from list</button>')+'</div>');
+  $("tdClose").addEventListener("click",closeModal);
+  $("tdToggle").addEventListener("click",function(){S.tasksDone[t.id]=!t.completed;if(!S.tasksDone[t.id])delete S.tasksDone[t.id];touch();closeModal();renderView()});
+  var del=$("tdDelete"),hide=$("tdHide");
+  if(del)del.addEventListener("click",function(){S.customTasks=S.customTasks.filter(function(x){return x.id!==t.id});delete S.tasksDone[t.id];touch();closeModal();renderView();toast("Task deleted")});
+  if(hide)hide.addEventListener("click",function(){S.hiddenTasks.push(t.id);touch();closeModal();renderView();toast("Removed — semester seed items can be restored by clearing site data")});
+}
+function stockSearchRowHTML(r){
+  var q=LIVE.quotes[r.sym];var priceTxt=q&&q.price!=null?money(q.price):"";
+  var inW=isInWatchlist(r.sym);
+  return '<div class="card flat search-result"><span class="sr-main"><span class="sr-sym">'+esc(r.sym)+'</span>'+(priceTxt?' <span class="small muted">'+esc(priceTxt)+'</span>':"")+'<span class="sr-name muted">'+esc(r.name)+'</span></span>'
+   +'<button type="button" class="btn small primary" data-search-open="'+esc(r.sym)+'" data-search-name="'+esc(r.name)+'">View</button>'
+   +(inW?'<span class="chip">In watchlist</span>':'<button type="button" class="btn small" data-search-add="'+esc(r.sym)+'" data-search-name="'+esc(r.name)+'">+ Watchlist</button>')
+   +'</div>';
+}
+function showStockSearchResults(query,results,note){
+  var box=$("stockSearchResults");if(!box)return;
+  if(note){box.innerHTML='<div class="search-results"><div class="card flat"><p class="small" style="margin:0">'+esc(note)+'</p></div></div>';return}
+  if(!results||!results.length){box.innerHTML="";return}
+  box.innerHTML='<div class="search-results"><p class="tiny" style="font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--dim);margin:2px 0 0">Matches for “'+esc(query)+'” — ticker shown first</p>'+results.map(stockSearchRowHTML).join("")+'</div>';
+}
+function bindView(){
+  document.querySelectorAll("[data-goto]").forEach(function(b){b.addEventListener("click",function(){go(b.getAttribute("data-goto"))})});
+  document.querySelectorAll("[data-retry]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-retry");b.disabled=true;b.textContent="Retrying…";if(k==="weather")fetchWeather();else if(k==="news")fetchNews();else if(k==="quotes")fetchAllQuotes();if(k!=="quotes")setTimeout(function(){renderView()},350)})});
+  document.querySelectorAll("[data-stock]").forEach(function(b){b.addEventListener("click",function(){currentStock=b.getAttribute("data-stock");stockTab="watchlist";go("stocks")})});
+  document.querySelectorAll("[data-stocktab]").forEach(function(b){b.addEventListener("click",function(){stockTab=b.getAttribute("data-stocktab");renderView()})});
+  document.querySelectorAll("[data-day]").forEach(function(b){b.addEventListener("click",function(){calSelected=b.getAttribute("data-day");renderView()})});
+  document.querySelectorAll("[data-tab]").forEach(function(b){b.addEventListener("click",function(){taskTab=b.getAttribute("data-tab");renderView()})});
+  document.querySelectorAll("[data-task-toggle]").forEach(function(cb){cb.addEventListener("change",function(){
+    var id=cb.getAttribute("data-task-toggle");
+    if(cb.checked)S.tasksDone[id]=true;else delete S.tasksDone[id];
+    touch();renderTickers();renderView();
+  })});
+  document.querySelectorAll("[data-task-open]").forEach(function(b){b.addEventListener("click",function(){
+    var t=allTasks().filter(function(x){return x.id===b.getAttribute("data-task-open")})[0];if(t)openTaskDetail(t);
+  })});
+  document.querySelectorAll("[data-study-toggle]").forEach(function(cb){cb.addEventListener("change",function(){
+    var id=cb.getAttribute("data-study-toggle");
+    if(cb.checked)S.studyDone[id]=true;else delete S.studyDone[id];
+    touch();renderView();
+  })});
+  document.querySelectorAll("[data-exam-pin]").forEach(function(b){b.addEventListener("click",function(){
+    var id=b.getAttribute("data-exam-pin");S.examPinned[id]=!S.examPinned[id];if(!S.examPinned[id])delete S.examPinned[id];
+    touch();renderNav();renderView();
+  })});
+  document.querySelectorAll("[data-exam-toggle]").forEach(function(b){b.addEventListener("click",function(){
+    var id=b.getAttribute("data-exam-toggle");var e=allExams().filter(function(x){return x.id===id})[0];
+    S.examsDone[id]=!(e&&e.completed);touch();renderNav();renderTickers();renderView();
+  })});
+  document.querySelectorAll("[data-edit-ev]").forEach(function(b){b.addEventListener("click",function(){
+    var e=S.events.filter(function(x){return x.id===b.getAttribute("data-edit-ev")})[0];if(e)openEventForm(e);
+  })});
+  document.querySelectorAll("[data-del-ev]").forEach(function(b){b.addEventListener("click",function(){
+    var id=b.getAttribute("data-del-ev");var e=S.events.filter(function(x){return x.id===id})[0];
+    openModal('<h3 style="font-size:18px;font-weight:700">Delete this event?</h3><p class="small muted">'+esc(e?e.title:"")+' · '+(e?fmtDay(e.dateStr):"")+'</p><div style="display:flex;gap:8px;margin-top:16px"><button type="button" class="btn danger" id="cfDel" style="flex:1">Delete</button><button type="button" class="btn" id="cfCancel">Keep it</button></div>');
+    $("cfCancel").addEventListener("click",closeModal);
+    $("cfDel").addEventListener("click",function(){S.events=S.events.filter(function(x){return x.id!==id});touch();closeModal();renderView();toast("Event deleted")});
+  })});
+  document.querySelectorAll("[data-del-holding]").forEach(function(b){b.addEventListener("click",function(){
+    S.holdings=S.holdings.filter(function(h){return h.id!==b.getAttribute("data-del-holding")});touch();renderView();toast("Holding removed");
+  })});
+  var ae=$("addEventBtn");if(ae)ae.addEventListener("click",function(){openEventForm(null)});
+  var at=$("addTaskBtn");if(at)at.addEventListener("click",openTaskForm);
+  var rs=$("refreshStocks");if(rs)rs.addEventListener("click",function(){rs.disabled=true;rs.textContent="Refreshing…";fetchAllQuotes().then(function(){renderView()})});
+  document.querySelectorAll("[data-add-watch]").forEach(function(b){b.addEventListener("click",async function(){
+    var sym=b.getAttribute("data-add-watch");var nm=WATCH_NAMES[sym]||(LIVE.quotes[sym]&&LIVE.quotes[sym].name)||sym;
+    if(addStockToWatchlist(sym,nm)){if(!LIVE.quotes[sym])LIVE.quotes[sym]=await fetchQuote(sym);renderTickers();renderView()}
+  })});
+  var sResults=$("stockSearchResults");
+  if(sResults)sResults.addEventListener("click",async function(ev){
+    var openB=ev.target.closest?ev.target.closest("[data-search-open]"):null;
+    var addB=ev.target.closest?ev.target.closest("[data-search-add]"):null;
+    if(openB){openStockSymbol(openB.getAttribute("data-search-open"),openB.getAttribute("data-search-name"));return}
+    if(addB){var sym2=addB.getAttribute("data-search-add"),nm2=addB.getAttribute("data-search-name");
+      if(addStockToWatchlist(sym2,nm2)){if(!LIVE.quotes[sym2])LIVE.quotes[sym2]=await fetchQuote(sym2);renderTickers();
+        /* refresh just the results buttons + watchlist cards without losing the query */
+        var qv=$("stockQ")?$("stockQ").value:"";renderView();var nq=$("stockQ");if(nq){nq.value=qv;showStockSearchResults(qv,companySearch(qv,6))}}
+      return}
+  });
+  var sInput=$("stockQ");
+  if(sInput)sInput.addEventListener("input",function(){
+    var v=sInput.value.trim();
+    if(v.length<2){showStockSearchResults(v,[]);return}
+    var res=companySearch(v,6);
+    if(res.length)showStockSearchResults(v,res);
+    else showStockSearchResults(v,[],"No company matched “"+v+"” yet — press Search to try it as a ticker symbol.");
+  });
+  var ss=$("stockSearch");if(ss)ss.addEventListener("submit",async function(ev){
+    ev.preventDefault();var raw=$("stockQ").value.trim();if(!raw)return;
+    var rawUpper=raw.toUpperCase().replace(/\s+/g,"");
+    var results=companySearch(raw,6);
+    /* Exact ticker (AAPL, NVDA, SPCX…) — keep the original behaviour: open it straight away. */
+    if(results.length&&results[0].sym===rawUpper&&raw.indexOf(" ")<0){openStockSymbol(results[0].sym,results[0].name);return}
+    /* Company name with a single clear match — open it (detail shows its ticker + Add to watchlist). */
+    if(results.length===1){openStockSymbol(results[0].sym,results[0].name);return}
+    /* Several name matches (e.g. Apple -> AAPL + APLE) — show them with tickers to pick from. */
+    if(results.length>1){showStockSearchResults(raw,results);toast("Found "+results.length+" matches for "+raw+" — pick one below");return}
+    /* Nothing in the name directory: fall back to a direct ticker lookup, as before. */
+    var q=rawUpper.replace(/[^A-Z0-9.\-]/g,"");
+    if(q&&q.length<=10&&raw.indexOf(" ")<0){
+      toast("Looking up "+q+"…");
+      var quote=await fetchQuote(q);
+      if(quote.unavailable){showStockSearchResults(raw,[],quote.error||("Couldn't find a company or ticker for “"+raw+"”. Check the name or ticker and try again."));return}
+      if(!WATCH_NAMES[q])WATCH_NAMES[q]=quote.name;
+      LIVE.quotes[q]=quote;currentStock=q;renderView();return;
+    }
+    showStockSearchResults(raw,[],"No company or ticker matched “"+raw+"”. Try a company name like Apple, Nvidia, or SpaceX, or a ticker like AAPL.");
+  });
+  var hf=$("holdingForm");if(hf)hf.addEventListener("submit",async function(ev){
+    ev.preventDefault();
+    var sym=$("hSym").value.trim().toUpperCase(),shares=parseFloat($("hShares").value),price=parseFloat($("hPrice").value),date=$("hDate").value;
+    if(!sym||!(shares>0)||!(price>0)){toast("Fill in symbol, shares, and buy price");return}
+    S.holdings.push({id:uid("h"),symbol:sym,name:WATCH_NAMES[sym]||sym,shares:shares,buyPrice:price,buyDate:date||todayStr()});
+    touch();
+    if(!LIVE.quotes[sym]){var q=await fetchQuote(sym);LIVE.quotes[sym]=q}
+    renderTickers();renderView();toast("Holding added");
+  });
+  var sv=$("saveSettings");if(sv)sv.addEventListener("click",function(){
+    var url=$("setUrl").value.trim().replace(/\/+$/,""),key=$("setKey").value.trim(),gem=$("setGem").value.trim();
+    CFG.setAll(url,key,gem);
+    $("settingsMsg").textContent="Saved on this device. Reconnecting…";
+    initSupabase();renderView();
+    setTimeout(function(){var m=$("settingsMsg");if(m)m.textContent=syncState.mode==="ok"?"Connected — planner state is syncing through Supabase.":syncState.mode==="error"?"Saved, but sync hit an error: "+(syncState.error||""):"Saved on this device."},1600);
+  });
+  var tg=$("testGemini");if(tg)tg.addEventListener("click",async function(){
+    tg.disabled=true;tg.textContent="Testing…";
+    try{
+      var r=await fetch("https://generativelanguage.googleapis.com/v1beta/models?key="+encodeURIComponent(CFG.gemini));
+      if(!r.ok)throw new Error("HTTP "+r.status);
+      var j=await r.json();var has=(j.models||[]).some(function(m){return (m.supportedGenerationMethods||[]).indexOf("bidiGenerateContent")>=0});
+      $("settingsMsg").textContent=has?"Jarvis is ready — the Gemini key works and a Live voice model is available on it.":"Key is valid, but no Live (bidiGenerateContent) model was listed for it, so Jarvis voice may not connect.";
+    }catch(e){$("settingsMsg").textContent="Gemini key test failed: "+e.message}
+    tg.disabled=false;tg.textContent="Test Gemini key";
+  });
+  var cl=$("clearSettings");if(cl)cl.addEventListener("click",function(){
+    CFG.clear();sbClient=null;syncState={mode:"local",msg:"This device only",lastOk:null,error:null};renderSync();renderView();toast("Keys removed from this browser");
+  });
+  var wt=$("wakeToggleSettings");if(wt)wt.addEventListener("click",function(){if(typeof setWakeEnabled==="function")setWakeEnabled(!(typeof WAKE!=="undefined"&&WAKE.enabled));});
+  if(examFocusId){var el=document.getElementById("exam-"+examFocusId);if(el)el.scrollIntoView({block:"start"});examFocusId=null}
+}
+/* =============== boot =============== */
+$("dateLine").textContent=fmtDayLong(todayStr())+" · California Baptist University";
+$("settingsBtn").addEventListener("click",function(){go("settings")});
+loadLocalState();
+if(typeof syncWatchlistFromState==="function")syncWatchlistFromState();
+renderSync();renderNav();renderTickers();renderView();
+initSupabase();
+fetchWeather();fetchNews();fetchAllQuotes();
+setInterval(function(){fetchAllQuotes()},5*60*1000);
+setInterval(function(){fetchWeather();fetchNews()},60*60*1000);
+</script>
+
+<div id="voiceRoot"></div>
+<script>
+"use strict";
+/* =============== Jarvis — Gemini Live voice assistant ===============
+   One persistent Gemini Live session per conversation with Jarvis.
+   It opens as a translucent Jarvis HUD overlay — glowing rings centred
+   over the page already on screen, that page still visible behind it,
+   no new tab and no navigation — and stays open until End:
+   the microphone streams continuously (PCM 16kHz up), Gemini's own
+   voice-activity detection handles turn-taking, Jarvis answers out
+   loud (PCM 24kHz down), and talking over Jarvis interrupts him —
+   there is no send step in voice mode. If the microphone is missing,
+   blocked, denied, or dies mid-chat, the SAME session falls back to
+   typing and Jarvis still answers out loud. Minimising the HUD does
+   not hang up; the session stays live behind the Jarvis button until
+   End. Wake word: when enabled, saying "Hey Jarvis" starts him. */
+var VOICE_MODEL="models/gemini-2.5-flash-native-audio-latest";
+function buildVoiceContext(){
+  var today=todayStr(),lines=[];
+  lines.push("Today is "+fmtDayLong(today)+" (America/Los_Angeles). The student is Noah, a Fall 2026 student at California Baptist University in Riverside, CA.");
+  var tasks=allTasks().filter(function(t){return !t.completed&&t.dueDate});
+  var dueToday=tasks.filter(function(t){return t.dueDate===today});
+  var overdue=tasks.filter(function(t){return daysUntil(t.dueDate)<0});
+  var week=tasks.filter(function(t){var d=daysUntil(t.dueDate);return d>=1&&d<=7});
+  lines.push("\nASSIGNMENTS & READINGS:");
+  lines.push(dueToday.length?"Due today: "+dueToday.map(function(t){return t.course+" — "+t.title}).join("; ")+".":"Nothing is due today.");
+  if(overdue.length)lines.push("Overdue (not checked off): "+overdue.slice(0,6).map(function(t){return t.course+" — "+t.title+" (was due "+t.dueLabel+")"}).join("; ")+".");
+  if(week.length)lines.push("Due in the next 7 days: "+week.slice(0,10).map(function(t){return t.course+" — "+t.title+" ("+t.dueLabel+")"}).join("; ")+".");
+  var all=allTasks();lines.push(all.filter(function(t){return t.completed}).length+" of "+all.length+" semester items are checked off.");
+  var exams=allExams().filter(function(e){return !e.completed&&daysUntil(e.date)>=0});
+  lines.push("\nUPCOMING EXAMS:");
+  if(exams.length)exams.slice(0,6).forEach(function(e){var d=daysUntil(e.date);lines.push("- "+e.course+" "+e.title+": "+e.date+" ("+(d===0?"today":d===1?"tomorrow":"in "+d+" days")+"), "+e.time+(e.location?", "+e.location:"")+".")});
+  else lines.push("No upcoming exams on file.");
+  function fmtEv(e){var when=e.allDay?"all day":e.startLabel+(e.endLabel?"–"+e.endLabel:"");var dur=e.kind==="work"&&!e.allDay?shiftDuration(e.startLabel,e.endLabel):null;return e.title+" ("+e.kind+", "+when+(dur?", "+dur:"")+(e.location?", "+e.location:"")+")"}
+  var todays=S.events.filter(function(e){return e.dateStr===today}).sort(eventSort);
+  var tomorrows=S.events.filter(function(e){return e.dateStr===addDaysStr(today,1)}).sort(eventSort);
+  var shifts=S.events.filter(function(e){return e.kind==="work"&&e.dateStr>=today&&e.dateStr<=addDaysStr(today,7)}).sort(eventSort);
+  lines.push("\nSCHEDULE:");
+  lines.push(todays.length?"Today: "+todays.map(fmtEv).join("; ")+".":"No classes, shifts, or events on today's calendar.");
+  lines.push(tomorrows.length?"Tomorrow: "+tomorrows.map(fmtEv).join("; ")+".":"Nothing on tomorrow's calendar.");
+  if(shifts.length)lines.push("Work shifts in the next 7 days: "+shifts.map(function(e){return e.dateStr+": "+fmtEv(e)}).join("; ")+".");
+  lines.push("\nSTOCKS (watchlist, latest loaded quotes):");
+  lines.push(WATCHLIST.map(function(s){var q=LIVE.quotes[s];return q&&q.price!=null?s+" $"+q.price.toFixed(2)+" ("+(q.changePercent!=null?(q.changePercent>=0?"+":"")+q.changePercent.toFixed(2)+"% today":"change n/a")+(q.ytdPercent!=null?", YTD "+(q.ytdPercent>=0?"+":"")+q.ytdPercent.toFixed(2)+"%":"")+")":s+" price unavailable"}).join("; ")+".");
+  if(S.holdings.length)lines.push("Portfolio holdings: "+S.holdings.map(function(h){var q=LIVE.quotes[h.symbol];return h.symbol+": "+h.shares+" shares bought at $"+h.buyPrice+(q&&q.price!=null?", now $"+q.price.toFixed(2):"")}).join("; ")+".");
+  else lines.push("No portfolio holdings recorded.");
+  lines.push("\nEMAIL: The public planner's Email page is a placeholder in v1 — Gmail connects later with Google sign-in. If asked about email, say that plainly.");
+  return lines.join("\n").slice(0,6000);
+}
+function bytesToB64(bytes){var s="",chunk=0x8000;for(var i=0;i<bytes.length;i+=chunk){s+=String.fromCharCode.apply(null,bytes.subarray(i,i+chunk))}return btoa(s)}
+function pcm16B64FromFloat(input,inputRate){
+  var target=16000,ratio=inputRate/target,outLen=Math.max(1,Math.floor(input.length/ratio)),pcm=new Int16Array(outLen);
+  for(var i=0;i<outLen;i++){var v=input[Math.floor(i*ratio)]||0;var s=Math.max(-1,Math.min(1,v));pcm[i]=s<0?s*0x8000:s*0x7fff}
+  return bytesToB64(new Uint8Array(pcm.buffer));
+}
+function floatFromPcm16B64(b64){
+  var bin=atob(b64),bytes=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+  var view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength),out=new Float32Array(Math.floor(bytes.length/2));
+  for(var i=0;i<out.length;i++)out[i]=view.getInt16(i*2,true)/0x8000;
+  return out;
+}
+var V={open:false,status:"idle",mode:"voice",micFailure:null,fallbackNote:null,error:null,speaking:false,muted:false,history:[],capUser:"",capAsst:"",ws:null,stream:null,micCtx:null,playCtx:null,proc:null,sources:new Set(),playhead:0,userPartial:"",asstPartial:"",speakTimer:null,wantLive:false,greeted:false,resumeHandle:null,reconnects:0,reconnectTimer:null,micAnalyser:null,playAnalyser:null,level:0,visualRAF:null,particles:[],particleRAF:null};
+function vStatus(){return V.status}
+/* ---- Jarvis HUD visuals: particles + speech-reactive waveform ---- */
+function jarvisLevelFrom(analyser){if(!analyser)return 0;try{var a=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(a);var s=0;for(var i=0;i<a.length;i++){var v=(a[i]-128)/128;s+=v*v}return Math.min(1,Math.sqrt(s/a.length)*4)}catch(e){return 0}}
+function jarvisStopVisuals(){if(V.visualRAF)cancelAnimationFrame(V.visualRAF);V.visualRAF=null;if(V.particleRAF)cancelAnimationFrame(V.particleRAF);V.particleRAF=null}
+function jarvisStartVisuals(){
+  jarvisStopVisuals();
+  var canvas=$("jarvisParticles");
+  if(canvas){
+    var ctx=canvas.getContext("2d");var W=canvas.width=window.innerWidth,H=canvas.height=window.innerHeight;
+    if(!V.particles.length){for(var i=0;i<80;i++)V.particles.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2.1+0.4,s:Math.random()*0.35+0.08,o:Math.random()*0.5+0.15,ph:Math.random()*6.28})}
+    var drawP=function(t){
+      if(!$("jarvisParticles"))return;
+      ctx.clearRect(0,0,W,H);
+      V.particles.forEach(function(p){p.y-=p.s;p.x+=Math.sin(t/1600+p.ph)*0.18;if(p.y<-4){p.y=H+4;p.x=Math.random()*W}var tw=0.55+0.45*Math.sin(t/700+p.ph);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.29);ctx.fillStyle="rgba(125,211,252,"+(p.o*tw)+")";ctx.shadowColor="rgba(56,189,248,.9)";ctx.shadowBlur=6;ctx.fill()});
+      V.particleRAF=requestAnimationFrame(drawP);
+    };
+    V.particleRAF=requestAnimationFrame(drawP);
+  }
+  var bars=document.querySelectorAll("#jarvisWave i");var core=$("jarvisCore");var hud=$("jarvisHud");
+  var tick=function(t){
+    if(!V.open)return;
+    var micL=jarvisLevelFrom(V.micAnalyser),playL=jarvisLevelFrom(V.playAnalyser);
+    var target=Math.max(micL,playL,V.speaking?0.42:0,V.status==="connecting"?0.22:0);
+    V.level+=(target-V.level)*0.22;
+    var lvl=V.level;
+    bars.forEach(function(b,idx){var w=Math.sin(t/240+idx*0.85)*0.5+0.5;var h=6+lvl*40*(0.35+w)+ (V.speaking?Math.sin(t/130+idx)*3:0);b.style.height=Math.max(5,h)+"px"});
+    if(core)core.style.transform="scale("+(1+lvl*0.16)+")";
+    if(hud)hud.style.setProperty("--lvl",lvl.toFixed(3));
+    V.visualRAF=requestAnimationFrame(tick);
+  };
+  V.visualRAF=requestAnimationFrame(tick);
+}
+function vRender(){
+  var root=$("voiceRoot");
+  document.body.classList.toggle("jarvis-open",!!V.open);
+  var fabDot=$("talkLiveDot"),fabLabel=$("talkFabLabel");
+  if(fabDot)fabDot.style.display=V.status==="live"?"":"none";
+  if(fabLabel)fabLabel.textContent=V.status==="live"?"Jarvis · Live":V.status==="connecting"?"Jarvis · …":"Jarvis";
+  if(!V.open){root.innerHTML="";jarvisStopVisuals();return}
+  var oldDraft=$("vDraft"),draftVal=oldDraft?oldDraft.value:null,draftFocus=!!oldDraft&&document.activeElement===oldDraft;
+  var statusLine=V.status==="connecting"?"Jarvis is connecting — one live session, just start talking…"
+    :V.status==="error"?"Jarvis couldn’t connect"
+    :V.status==="live"?(V.mode==="typed"?(V.speaking?"Jarvis is speaking your answer out loud…":"Jarvis is connected — type below, he answers out loud"):V.speaking?"Jarvis is speaking — talk over him to interrupt":V.muted?"Jarvis microphone muted":"Jarvis is listening — just talk")
+    :"Jarvis is ready";
+  var hist=V.history.map(function(h){return (h.user?'<p style="margin:0 0 6px;font-size:14px"><b style="color:#7dd3fc">You: </b>'+esc(h.user)+'</p>':"")+(h.assistant?'<p style="margin:0 0 8px;font-size:14px;color:#bfdbfe"><b style="color:#f0f9ff">Jarvis: </b>'+esc(h.assistant)+'</p>':"")}).join("");
+  var cap=(V.capUser||V.capAsst)?((V.capUser?'<p style="margin:0 0 6px;font-size:14px"><b style="color:#7dd3fc">You: </b>'+esc(V.capUser)+'</p>':"")+(V.capAsst?'<p style="margin:0;font-size:14px;color:#bfdbfe"><b style="color:#f0f9ff">Jarvis: </b>'+esc(V.capAsst)+'</p>':"")):"";
+  var noKey=!CFG.gemini;
+  var waveBars="";for(var wi=0;wi<32;wi++)waveBars+="<i></i>";
+  var wakeOn=(typeof WAKE!=="undefined"&&WAKE.enabled);
+  root.innerHTML='<div class="jarvis-overlay" role="dialog" aria-modal="true" aria-label="Jarvis — voice assistant overlay on this page">'
+   +'<canvas id="jarvisParticles" aria-hidden="true"></canvas>'
+   +'<div class="jarvis-inner">'
+   +'<div class="jarvis-top"><div><p class="jarvis-name">JARVIS</p><p class="jarvis-sub">Just A Rather Very Intelligent System · Live conversation</p></div><button type="button" class="jarvis-close" id="vClose" aria-label="Minimise Jarvis (conversation keeps going)">✕</button></div>'
+   +'<div class="jarvis-hud" id="jarvisHud" aria-hidden="true"><div class="jarvis-ring jr-outer"></div><div class="jarvis-ring jr-arc1"></div><div class="jarvis-ring jr-arc2"></div><div class="jarvis-ring jr-dash"></div><div class="jarvis-ring jr-arc3"></div><div class="jarvis-ring jr-glow"></div><div class="jarvis-core'+(V.speaking?" speaking":"")+'" id="jarvisCore"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M12 18v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div></div>'
+   +'<div class="jarvis-wave" id="jarvisWave" aria-hidden="true">'+waveBars+'</div>'
+   +'<p class="jarvis-status" role="status" '+(V.status==="error"?'style="color:#fca5a5"':"")+'>'+esc(statusLine)+'</p>'
+   +(V.status==="error"&&V.error?'<p class="jarvis-note">'+esc(V.error)+'</p>':"")
+   +(V.status==="live"&&V.mode==="typed"&&V.fallbackNote?'<p class="jarvis-note">'+esc(V.fallbackNote)+'</p>':"")
+   +(V.status==="live"&&V.mode==="voice"?'<p class="jarvis-note">Live conversation — <b>just talk</b>. No send button: Jarvis hears you, answers out loud, and you can interrupt him mid-sentence.</p>':"")
+   +'<div class="jarvis-panel">'
+   +(noKey?'<p class="small" style="margin:0 0 10px;color:#dbeafe">Add your Gemini API key once in Settings and Jarvis runs the live conversation straight from this browser.</p><button type="button" class="jarvis-btn primary" id="vGoSettings">Open Settings</button>':"")
+   +'<div class="transcript" aria-label="Conversation with Jarvis">'
+   +(!hist&&!cap?'<p class="small" style="margin:0;color:#93c5fd">'+(V.status==="live"&&V.mode==="typed"?'Type a question below — Jarvis answers out loud: “What’s due today?” · “When’s my next exam?” · “Do I work this week?”':V.status==="live"?'Just start talking: “What’s due today?” · “When’s my next exam?” · “Do I work this week?” · “How are my stocks doing?”':'Jarvis will introduce himself here as you talk. Say “Hey Jarvis” when wake word is on, or tap Start.')+'</p>':hist+cap)
+   +'</div>'
+   +(V.status==="live"&&V.mode==="typed"?'<form id="vTypeForm" style="display:flex;gap:8px;margin-top:12px"><input class="jarvis-field" id="vDraft" placeholder="Type your question for Jarvis…" aria-label="Type a message to Jarvis" enterkeyhint="send"><button type="submit" class="jarvis-btn primary">Send</button></form>':"")
+   +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+   +((V.status==="idle"||V.status==="error")
+      ?'<button type="button" class="jarvis-btn primary" id="vStart" style="flex:1" '+(noKey?"disabled":"")+'>'+(V.status==="error"?"Reconnect Jarvis":"Start conversation with Jarvis")+'</button>'
+       +(V.status==="error"?'<button type="button" class="jarvis-btn" id="vType" style="flex:1">Type instead</button>':"")
+      :V.status==="connecting"
+       ?'<button type="button" class="jarvis-btn danger" id="vEnd" style="flex:1">Cancel</button>'
+       :(V.mode==="voice"?'<button type="button" class="jarvis-btn" id="vMute" aria-pressed="'+V.muted+'">'+(V.muted?"Unmute":"Mute")+'</button>':"")
+        +'<button type="button" class="jarvis-btn danger" id="vEnd" style="flex:1">End conversation</button>')
+   +'<button type="button" class="jarvis-btn" id="vWakeToggle" aria-pressed="'+wakeOn+'">Wake word “Hey Jarvis”: '+(wakeOn?"On":"Off")+'</button>'
+   +'</div>'
+   +(typeof WAKE!=="undefined"&&WAKE.error?'<p class="jarvis-note" style="text-align:left;margin-top:10px">'+esc(WAKE.error)+'</p>':"")
+   +(V.status==="live"?'<p class="jarvis-note">Minimising Jarvis doesn’t hang up — the conversation stays live behind the Jarvis button until you tap End.</p>':"")
+   +'<p class="jarvis-note" style="margin-top:10px">Jarvis uses your Gemini key on its free tier — longer chats can hit Google’s free limits. Answers come from your tasks, calendar, exams, and stock quotes on this page.</p>'
+   +'</div></div></div>';
+  var tr=root.querySelector(".transcript");if(tr)tr.scrollTop=tr.scrollHeight;
+  var nd=$("vDraft");
+  if(nd&&draftVal!=null){nd.value=draftVal;if(draftFocus)nd.focus()}
+  var vc=$("vClose");if(vc)vc.addEventListener("click",vClosePanel);
+  var st=$("vStart");if(st)st.addEventListener("click",function(){vStart(false)});
+  var ty=$("vType");if(ty)ty.addEventListener("click",function(){vStart(true)});
+  var en=$("vEnd");if(en)en.addEventListener("click",vEnd);
+  var mu=$("vMute");if(mu)mu.addEventListener("click",function(){V.muted=!V.muted;vRender()});
+  var gs=$("vGoSettings");if(gs)gs.addEventListener("click",function(){vClosePanel();go("settings")});
+  var wk=$("vWakeToggle");if(wk)wk.addEventListener("click",function(){setWakeEnabled(!((typeof WAKE!=="undefined")&&WAKE.enabled))});
+  var tf=$("vTypeForm");if(tf)tf.addEventListener("submit",function(e){e.preventDefault();vSendText($("vDraft").value);$("vDraft").value=""});
+  jarvisStartVisuals();
+}
+function vStopPlayback(){
+  V.sources.forEach(function(s){try{s.stop()}catch(e){}});V.sources.clear();
+  V.playhead=V.playCtx?V.playCtx.currentTime:0;V.speaking=false;
+}
+function vTeardown(){
+  if(V.reconnectTimer)clearTimeout(V.reconnectTimer);V.reconnectTimer=null;
+  try{if(V.proc)V.proc.disconnect()}catch(e){}V.proc=null;V.micAnalyser=null;V.playAnalyser=null;
+  try{if(V.micCtx)V.micCtx.close()}catch(e){}V.micCtx=null;
+  if(V.stream)V.stream.getTracks().forEach(function(t){t.onended=null;t.stop()});V.stream=null;
+  vStopPlayback();
+  try{if(V.playCtx)V.playCtx.close()}catch(e){}V.playCtx=null;
+  if(V.ws){var ws=V.ws;V.ws=null;try{ws.close()}catch(e){}}
+  if(V.speakTimer)clearTimeout(V.speakTimer);
+}
+function vPlayChunk(b64){
+  var ctx=V.playCtx;if(!ctx)return;
+  var floats=floatFromPcm16B64(b64);if(!floats.length)return;
+  var buffer=ctx.createBuffer(1,floats.length,24000);buffer.getChannelData(0).set(floats);
+  var src=ctx.createBufferSource();src.buffer=buffer;src.connect(V.playAnalyser||ctx.destination);
+  var startAt=Math.max(V.playhead,ctx.currentTime+0.03);src.start(startAt);V.playhead=startAt+buffer.duration;
+  V.sources.add(src);src.onended=function(){V.sources.delete(src)};
+  V.speaking=true;
+  if(V.speakTimer)clearTimeout(V.speakTimer);
+  V.speakTimer=setTimeout(function(){V.speaking=false;if(V.open)vRender()},Math.max(250,(V.playhead-ctx.currentTime)*1000));
+}
+/* Mic pipeline: streams every audio chunk to the open session for as
+   long as the conversation is live — including while Jarvis is
+   speaking, which is what makes talk-over interruption work. */
+function vStartMicStreaming(){
+  if(!V.stream||V.micCtx)return;
+  try{
+    var micCtx=new (window.AudioContext||window.webkitAudioContext)();V.micCtx=micCtx;
+    if(micCtx.state==="suspended")micCtx.resume();
+    var source=micCtx.createMediaStreamSource(V.stream);
+    try{var an=micCtx.createAnalyser();an.fftSize=512;source.connect(an);V.micAnalyser=an}catch(e){V.micAnalyser=null}
+    var proc=micCtx.createScriptProcessor(2048,1,1);V.proc=proc;
+    var sink=micCtx.createGain();sink.gain.value=0;
+    proc.onaudioprocess=function(e){
+      if(V.muted||!V.ws||V.ws.readyState!==WebSocket.OPEN)return;
+      var data=e.inputBuffer.getChannelData(0);
+      var b64=pcm16B64FromFloat(new Float32Array(data),micCtx.sampleRate);
+      try{V.ws.send(JSON.stringify({realtimeInput:{audio:{mimeType:"audio/pcm;rate=16000",data:b64}}}))}catch(err){}
+    };
+    source.connect(proc);proc.connect(sink);sink.connect(micCtx.destination);
+    V.stream.getAudioTracks().forEach(function(t){t.onended=function(){vMicGone()}});
+  }catch(e){vMicGone()}
+}
+function vMicGone(){
+  if(!V.wantLive||V.mode==="typed")return;
+  V.mode="typed";V.micAnalyser=null;
+  V.fallbackNote="The microphone stopped, so this conversation switched to typing — Jarvis still answers out loud.";
+  try{if(V.proc)V.proc.disconnect()}catch(e){}V.proc=null;
+  try{if(V.micCtx)V.micCtx.close()}catch(e){}V.micCtx=null;
+  if(V.stream)V.stream.getTracks().forEach(function(t){t.stop()});V.stream=null;
+  if(V.open)vRender();
+}
+function vHandleMessage(raw){
+  var msg;try{msg=JSON.parse(raw)}catch(e){return}
+  if(msg.sessionResumptionUpdate&&msg.sessionResumptionUpdate.resumable&&msg.sessionResumptionUpdate.newHandle){V.resumeHandle=msg.sessionResumptionUpdate.newHandle}
+  if(msg.setupComplete!==undefined){
+    V.status="live";V.reconnects=0;
+    if(V.mode==="voice")vStartMicStreaming();
+    if(!V.greeted&&V.ws&&V.ws.readyState===WebSocket.OPEN){
+      V.greeted=true;
+      V.ws.send(JSON.stringify({clientContent:{turns:[{role:"user",parts:[{text:"Introduce yourself as Jarvis in one short sentence — for example 'Hello Noah, I’m Jarvis' — then give him a one-line heads-up about the single most important thing in his planner right now, and invite his question."}]}],turnComplete:true}}));
+    }
+    if(V.open)vRender();
+    return;
+  }
+  var sc=msg.serverContent;
+  if(sc){
+    var needRender=false;
+    if(sc.interrupted){vStopPlayback();needRender=true}
+    if(sc.inputTranscription&&sc.inputTranscription.text){
+      if(V.speaking)vStopPlayback(); /* you started talking — cut the reply off */
+      V.userPartial+=sc.inputTranscription.text;V.capUser=V.userPartial;needRender=true;
+    }
+    if(sc.outputTranscription&&sc.outputTranscription.text){V.asstPartial+=sc.outputTranscription.text;V.capAsst=V.asstPartial;needRender=true}
+    var wasSpeaking=V.speaking;
+    var parts=(sc.modelTurn&&sc.modelTurn.parts)||[];
+    for(var i=0;i<parts.length;i++){if(parts[i].inlineData&&parts[i].inlineData.data)vPlayChunk(parts[i].inlineData.data)}
+    if(V.speaking!==wasSpeaking)needRender=true;
+    if(sc.turnComplete){
+      var u=V.userPartial.trim(),a=V.asstPartial.trim();
+      if(u||a)V.history=V.history.slice(-9).concat([{user:u,assistant:a}]);
+      V.userPartial="";V.asstPartial="";V.capUser="";V.capAsst="";
+      needRender=true;
+    }
+    if(needRender&&V.open)vRender();
+  }
+  if(msg.toolCall&&msg.toolCall.functionCalls){
+    msg.toolCall.functionCalls.forEach(function(fc){
+      if(fc.name==="refresh_planner"&&V.ws&&V.ws.readyState===WebSocket.OPEN){
+        V.ws.send(JSON.stringify({toolResponse:{functionResponses:[{id:fc.id||"",name:"refresh_planner",response:{result:buildVoiceContext()}}]}}));
+      }
+    });
+  }
+}
+async function vAcquireMic(){
+  function framed(){try{return window.self!==window.top}catch(e){return true}}
+  var md=navigator.mediaDevices;
+  if(!md||!md.getUserMedia){
+    return{ok:false,failure:{message:framed()?"Voice input is blocked in this frame — the microphone prompt can't appear, so this conversation runs on typing instead. Jarvis still answers out loud.":"This browser doesn't expose microphone capture, so this conversation runs on typing instead. Jarvis still answers out loud."}};
+  }
+  try{return{ok:true,stream:await md.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}}
+  catch(e){
+    if(e&&e.name==="NotAllowedError")return{ok:false,failure:{message:"Microphone permission was denied, so this conversation runs on typing instead — Jarvis still answers out loud. Allow the microphone for this site and start a new conversation to talk."}};
+    if(e&&(e.name==="NotFoundError"||e.name==="OverconstrainedError"))return{ok:false,failure:{message:"No microphone was found on this device, so this conversation runs on typing instead — Jarvis still answers out loud."}};
+    return{ok:false,failure:{message:((e&&e.message)||"The microphone couldn't be started")+" — so this conversation runs on typing instead; Jarvis still answers out loud."}};
+  }
+}
+function vConnect(){
+  if(!V.playCtx){V.playCtx=new (window.AudioContext||window.webkitAudioContext)();V.playhead=0;try{V.playAnalyser=V.playCtx.createAnalyser();V.playAnalyser.fftSize=512;V.playAnalyser.connect(V.playCtx.destination)}catch(e){V.playAnalyser=null}}
+  if(V.playCtx.state==="suspended")V.playCtx.resume();
+  var url="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(CFG.gemini);
+  var ws=new WebSocket(url);V.ws=ws;
+  ws.onopen=function(){
+    if(V.ws!==ws)return;
+    ws.send(JSON.stringify({setup:{
+      model:VOICE_MODEL,
+      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:"Zephyr"}}}},
+      systemInstruction:{parts:[{text:"You are Jarvis — Just A Rather Very Intelligent System — Noah's planner assistant inside his Daily Planner app. Always introduce yourself as Jarvis and refer to yourself as Jarvis, never as a generic assistant. Your manner is calm, capable, and lightly witty in the Jarvis style, but keep it natural and brief. This is a live spoken conversation: he talks, you listen, you answer out loud — short, friendly answers, one or two sentences unless he asks for more. Turn-taking is automatic and he can interrupt you at any time; if he does, drop what you were saying and go with the new thing. Answer questions about his planner from the briefing below: assignments and readings due, upcoming exams, his class schedule and work shifts, and his stocks. If he asks about something the briefing doesn't cover or that may have just changed, call the refresh_planner function to get the fresh briefing before answering. Never invent due dates, times, prices, or shifts that aren't in the briefing. If something isn't in the briefing, say so plainly. Don't read out long lists unless asked — summarize and offer details.\n\nPLANNER BRIEFING:\n"+buildVoiceContext()}]},
+      tools:[{functionDeclarations:[{name:"refresh_planner",description:"Get the freshest planner briefing (tasks due, exams, today's schedule and work shifts, stock quotes and holdings) when the answer may have changed or isn't covered by the current briefing.",parameters:{type:"OBJECT",properties:{}}}]}],
+      inputAudioTranscription:{},outputAudioTranscription:{},
+      realtimeInputConfig:{automaticActivityDetection:{disabled:false,startOfSpeechSensitivity:"START_SENSITIVITY_HIGH",endOfSpeechSensitivity:"END_SENSITIVITY_HIGH",prefixPaddingMs:20,silenceDurationMs:500}},
+      sessionResumption:V.resumeHandle?{handle:V.resumeHandle}:{}
+    }}));
+  };
+  ws.onmessage=function(ev){
+    if(typeof ev.data==="string")vHandleMessage(ev.data);
+    else if(ev.data instanceof Blob)ev.data.text().then(vHandleMessage).catch(function(){});
+  };
+  ws.onerror=function(){/* onclose handles recovery */};
+  ws.onclose=function(){
+    if(V.ws===ws)V.ws=null;
+    if(!V.wantLive)return; /* explicit End already tore everything down */
+    if(V.reconnects<3){
+      V.reconnects++;V.status="connecting";
+      if(V.open)vRender();
+      V.reconnectTimer=setTimeout(function(){if(V.wantLive)vReconnect()},1200*V.reconnects);
+    }else{
+      V.wantLive=false;vTeardown();V.status="error";
+      V.error="Jarvis's connection dropped and couldn't be restored. Check that your Gemini key is valid in Settings — on the free tier, sessions can also end when usage limits are reached.";
+      if(V.open)vRender();else vRender();
+    }
+  };
+}
+async function vReconnect(){
+  if(V.mode==="voice"&&!V.stream){
+    var mic=await vAcquireMic();
+    if(mic.ok){V.stream=mic.stream}
+    else{V.mode="typed";V.fallbackNote=mic.failure.message}
+  }
+  if(V.wantLive)vConnect();
+}
+async function vStart(typedOnly){
+  if(typeof stopWakeListening==="function")stopWakeListening();
+  V.wantLive=false;vTeardown();
+  V.error=null;V.micFailure=null;V.fallbackNote=null;V.history=[];V.capUser="";V.capAsst="";V.userPartial="";V.asstPartial="";
+  V.muted=false;V.speaking=false;V.greeted=false;V.resumeHandle=null;V.reconnects=0;
+  V.wantLive=true;V.status="connecting";vRender();
+  try{
+    if(typedOnly){V.mode="typed";V.fallbackNote="Typing mode — Jarvis answers out loud."}
+    else{
+      var mic=await vAcquireMic();
+      if(mic.ok){V.mode="voice";V.stream=mic.stream}
+      else{V.mode="typed";V.micFailure=mic.failure;V.fallbackNote=mic.failure.message}
+    }
+    if(!V.wantLive)return; /* user cancelled while the mic prompt was up */
+    vConnect();
+  }catch(e){
+    V.wantLive=false;vTeardown();V.status="error";V.error=(e&&e.message)||"Jarvis couldn't start the voice session.";vRender();
+  }
+}
+function vSendText(text){
+  text=(text||"").trim();
+  if(!text||V.status!=="live"||!V.ws||V.ws.readyState!==WebSocket.OPEN)return;
+  vStopPlayback();
+  V.userPartial=V.userPartial?V.userPartial+" "+text:text;V.capUser=V.userPartial;
+  V.ws.send(JSON.stringify({clientContent:{turns:[{role:"user",parts:[{text:text}]}],turnComplete:true}}));
+  vRender();
+}
+function vEnd(){
+  V.wantLive=false;vTeardown();
+  V.status="idle";V.mode="voice";V.speaking=false;V.muted=false;V.fallbackNote=null;V.micFailure=null;V.error=null;V.greeted=false;V.resumeHandle=null;V.reconnects=0;
+  V.userPartial="";V.asstPartial="";V.capUser="";V.capAsst="";
+  vRender();
+  if(typeof WAKE!=="undefined"&&WAKE.enabled&&typeof startWakeListening==="function")setTimeout(startWakeListening,500);
+}
+function vClosePanel(){V.open=false;jarvisStopVisuals();vRender()}
+/* ===== Wake word: “Hey Jarvis” ===== */
+var WAKE={enabled:false,rec:null,active:false,error:null,restartTimer:null};
+try{WAKE.enabled=localStorage.getItem("dp_wake_enabled")==="1"}catch(e){}
+function wakeSupported(){return !!(window.SpeechRecognition||window.webkitSpeechRecognition)}
+function updateWakeUI(){
+  var fab=$("wakeFab"),lab=$("wakeFabLabel");
+  if(fab){fab.classList.toggle("on",WAKE.enabled&&WAKE.active);fab.setAttribute("aria-pressed",WAKE.enabled?"true":"false")}
+  if(lab)lab.textContent=WAKE.enabled?"Wake: On":"Wake: Off";
+  var note=$("wakeSettingsNote");if(note)note.textContent=WAKE.error||(WAKE.enabled?"Listening for “Hey Jarvis”…":"Off");
+  var btn=$("wakeToggleSettings");if(btn)btn.textContent="Wake word: "+(WAKE.enabled?"On":"Off");
+}
+function stopWakeListening(){
+  if(WAKE.restartTimer)clearTimeout(WAKE.restartTimer);WAKE.restartTimer=null;
+  if(WAKE.rec){var r=WAKE.rec;WAKE.rec=null;try{r.onend=null;r.onerror=null;r.onresult=null;r.stop()}catch(e){try{r.abort()}catch(e2){}}}
+  WAKE.active=false;updateWakeUI();
+}
+function startWakeListening(){
+  if(!WAKE.enabled||WAKE.active||V.wantLive||V.status==="live"||V.status==="connecting")return;
+  if(!wakeSupported()){WAKE.error="Wake word needs browser speech recognition — Chrome works best. Jarvis still opens with the Jarvis button.";updateWakeUI();if(V.open)vRender();return}
+  try{
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    var rec=new SR();WAKE.rec=rec;rec.continuous=true;rec.interimResults=true;rec.lang="en-US";rec.maxAlternatives=3;
+    rec.onresult=function(ev){
+      for(var i=ev.resultIndex;i<ev.results.length;i++){
+        for(var j=0;j<ev.results[i].length;j++){
+          var norm=String(ev.results[i][j].transcript||"").toLowerCase().replace(/[^a-z\s]/g," ").replace(/\s+/g," ").trim();
+          if(norm.indexOf("hey jarvis")>=0||norm.indexOf("hey jarv is")>=0||norm.indexOf("a jarvis")>=0&&norm.indexOf("hey")>=0){triggerWakeWord();return}
+        }
+      }
+    };
+    rec.onerror=function(e){
+      WAKE.active=false;
+      if(e&&e.error==="not-allowed"){WAKE.error="Microphone permission is needed for wake word. Allow the mic for this site, then turn wake word on again.";WAKE.enabled=false;try{localStorage.removeItem("dp_wake_enabled")}catch(err){}}
+      else if(e&&e.error==="not-supported"){WAKE.error="Wake word isn’t supported in this browser.";WAKE.enabled=false}
+      updateWakeUI();if(V.open)vRender();
+    };
+    rec.onend=function(){WAKE.active=false;WAKE.rec=null;updateWakeUI();if(WAKE.enabled&&!V.wantLive){WAKE.restartTimer=setTimeout(startWakeListening,700)}};
+    rec.start();WAKE.active=true;WAKE.error=null;updateWakeUI();
+  }catch(e){WAKE.active=false;WAKE.error="Wake word couldn’t start in this browser — Jarvis still opens with the Jarvis button.";updateWakeUI()}
+}
+function triggerWakeWord(){
+  toast("Hey Jarvis — Jarvis is listening");
+  stopWakeListening();
+  V.open=true;
+  if(CFG.gemini){vStart(false)}else{vRender()}
+}
+function setWakeEnabled(on){
+  WAKE.enabled=!!on;WAKE.error=null;
+  try{if(on)localStorage.setItem("dp_wake_enabled","1");else localStorage.removeItem("dp_wake_enabled")}catch(e){}
+  if(on){updateWakeUI();startWakeListening();toast("Wake word on — say “Hey Jarvis” to start Jarvis")}
+  else{stopWakeListening();toast("Wake word off")}
+  updateWakeUI();
+  if(V.open)vRender();
+  if(currentView==="settings")renderView();
+}
+var wakeFabEl=$("wakeFab");if(wakeFabEl)wakeFabEl.addEventListener("click",function(){setWakeEnabled(!WAKE.enabled)});
+updateWakeUI();
+if(WAKE.enabled){/* will prompt for mic on first toggle in most browsers; try quietly */ setTimeout(startWakeListening,800)}
+$("talkFab").addEventListener("click",function(){
+  V.open=true;
+  if((V.status==="idle"||V.status==="error")&&CFG.gemini){vStart(false)}
+  else vRender();
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&V.open)vClosePanel()});
+</script>
+</body>
+</html>
